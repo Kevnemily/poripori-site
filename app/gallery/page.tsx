@@ -268,21 +268,33 @@ export default function Gallery() {
       </div>
 
       {/* ============================================================
-      HERO SECTION
+      HERO SECTION - SMOOTH CROSSFADE
       ============================================================ */}
       <section className="relative h-[75vh] min-h-[520px] overflow-hidden bg-[#2C2418]" aria-label="Gallery hero banner">
         <div className="absolute inset-0 w-full h-full">
           {heroImages.map((img, index) => (
             <div
               key={index}
-              className={`absolute inset-0 w-full h-full bg-cover bg-center transition-opacity duration-[1.5s] ease-in-out z-0 ${
+              className={`absolute inset-0 w-full h-full transition-opacity duration-[1.5s] ease-in-out z-0 ${
                 index === currentSlide ? 'opacity-100 z-[1]' : 'opacity-0'
               }`}
-              style={{ backgroundImage: `url('${img}')` }}
-            />
+            >
+              <img
+                src={img}
+                alt={`Pori Pori Gallery ${index + 1}`}
+                className="w-full h-full object-cover"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'auto'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                onError={(e) => {
+                  console.error('Image failed to load:', img)
+                  e.currentTarget.style.display = 'none'
+                }}
+              />
+            </div>
           ))}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/10 to-black/60 z-[2]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/5 to-black/60 z-[2]" />
         
         <div className="relative z-[3] h-full flex flex-col justify-center items-center text-center px-4">
           <p className="text-[0.65rem] tracking-[12px] text-[#D4BC8D] uppercase font-sans font-light mb-6">
