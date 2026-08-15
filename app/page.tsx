@@ -186,20 +186,20 @@ export default function Home() {
       </div>
 
       {/* ============================================================
-      HERO SECTION
+      HERO SECTION - SMOOTH CROSSFADE TRANSITION
       ============================================================ */}
       <section className="relative h-screen min-h-[600px] overflow-hidden bg-dark">
         <div className="absolute inset-0">
           {heroImages.map((img, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                 index === currentSlide ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <img
                 src={img}
-                alt="Poripori Safari"
+                alt={`Pori Pori Safari ${index + 1}`}
                 className="w-full h-full object-cover"
                 loading={index === 0 ? 'eager' : 'lazy'}
                 fetchPriority={index === 0 ? 'high' : 'auto'}
@@ -212,7 +212,7 @@ export default function Home() {
             </div>
           ))}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/5 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/5 to-black/50" />
         
         <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
           <p className="text-[clamp(0.6rem,3vw,0.65rem)] tracking-[clamp(6px,2vw,10px)] text-gold-light uppercase font-sans font-light mb-4">
