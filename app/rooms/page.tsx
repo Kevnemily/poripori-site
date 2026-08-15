@@ -376,7 +376,7 @@ export default function Rooms() {
       </section>
 
       {/* ============================================================
-      CAMP INTRO SECTION
+      CAMP INTRO SECTION - FULL CONTENT
       ============================================================ */}
       <section className="py-20 md:py-24 lg:py-28 max-w-[100vw] overflow-x-hidden" aria-label="Migration Camp introduction">
         <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
@@ -405,8 +405,11 @@ export default function Rooms() {
               <p className="text-[#8B7A64] leading-relaxed font-light mb-4 text-sm md:text-base">
                 Designed to move with the rhythms of the wild, our Migration Camp places you at the forefront of nature's greatest spectacle. Each canvas suite is positioned to capture the golden light and endless horizons of the Serengeti.
               </p>
-              <p className="text-[#8B7A64] leading-relaxed font-light text-sm md:text-base">
+              <p className="text-[#8B7A64] leading-relaxed font-light mb-4 text-sm md:text-base">
                 With only eight exclusive suites, privacy and personalized attention are guaranteed. Our butler service ensures every moment of your stay is seamless, from sunrise wake-up calls with fresh coffee to starlit turn-downs with hot water bottles.
+              </p>
+              <p className="text-[#8B7A64] leading-relaxed font-light text-sm md:text-base">
+                Each suite is thoughtfully designed with handcrafted furnishings, en-suite bathrooms with hot water on demand, and private decks that offer uninterrupted views of the Serengeti plains. Whether you're watching the sunrise over the savannah or counting stars under the African sky, every moment at Pori Pori Migration Camp is crafted to be unforgettable.
               </p>
             </div>
           </div>
