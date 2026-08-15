@@ -376,25 +376,27 @@ export default function Rooms() {
       </section>
 
       {/* ============================================================
-      CAMP INTRO SECTION - MATCHING YOUR ORIGINAL HTML
+      CAMP INTRO SECTION - FIXED
       ============================================================ */}
-      <section className="section" aria-label="Migration Camp introduction">
-        <div className="container mx-auto px-4 md:px-8">
+      <section className="py-20 md:py-24 lg:py-28 max-w-[100vw] overflow-x-hidden" aria-label="Migration Camp introduction">
+        <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div 
               ref={introRef}
               className={`relative transition-all duration-1000 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
             >
               <div className="absolute bottom-[-20px] right-[-20px] w-[180px] h-[180px] border border-[rgba(196,165,110,0.3)] z-[-1] hidden md:block" />
-              <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786816917/bushdinner1.webp"
-                alt="Pori Pori Migration Camp - luxury safari accommodation in Serengeti"
-                className="w-full h-[350px] md:h-[450px] lg:h-[550px] object-cover transition-transform duration-1000 hover:scale-105 bg-[#F3EDE4]"
-                loading="eager"
-                fetchPriority="high"
-                width="800"
-                height="550"
-              />
+              <div className="w-full h-[350px] md:h-[450px] lg:h-[550px] overflow-hidden bg-[#F3EDE4]">
+                <img 
+                  src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner1.webp"
+                  alt="Pori Pori Migration Camp - luxury safari accommodation in Serengeti"
+                  className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+                  loading="eager"
+                  fetchPriority="high"
+                  width="800"
+                  height="550"
+                />
+              </div>
             </div>
             <div className={`transition-all duration-1000 delay-200 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <span className="inline-block px-6 py-2 border border-[#C4A56E] text-[#C4A56E] text-[0.65rem] tracking-[5px] uppercase font-medium mb-6">
