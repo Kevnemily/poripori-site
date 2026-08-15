@@ -11,8 +11,11 @@ export default function Cuisines() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  // All hero images with Cloudinary URLs
+  // ============================================================
+  // HERO IMAGES
+  // ============================================================
   const heroImages = [
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/food11.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/food18.webp',
@@ -20,21 +23,9 @@ export default function Cuisines() {
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bar3.webp'
   ]
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length)
-    }, 5000)
-    return () => clearInterval(interval)
-  }, [heroImages.length])
-
+  // ============================================================
+  // SIGNATURE EXPERIENCES
+  // ============================================================
   const signatureExperiences = [
     {
       title: 'Bush Breakfast',
@@ -59,6 +50,9 @@ export default function Cuisines() {
     }
   ]
 
+  // ============================================================
+  // ADDITIONAL EXPERIENCES
+  // ============================================================
   const additionalExperiences = [
     {
       title: 'Private Picnic Safari',
@@ -83,6 +77,34 @@ export default function Cuisines() {
     }
   ]
 
+  // ============================================================
+  // EFFECTS
+  // ============================================================
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [heroImages.length])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // ============================================================
+  // LIGHTBOX FUNCTIONS
+  // ============================================================
   const openLightbox = (imageUrl: string) => {
     setLightboxImage(imageUrl)
     setLightboxOpen(true)
@@ -94,12 +116,31 @@ export default function Cuisines() {
     document.body.style.overflow = ''
   }
 
+  // ============================================================
+  // LOADING SCREEN
+  // ============================================================
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
+          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <>
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`}>
-        <Link href="/" className="nav-brand">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} />
+      {/* ============================================================
+      NAVIGATION
+      ============================================================ */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+        <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none items-center">
@@ -115,23 +156,28 @@ export default function Cuisines() {
           <button 
             onClick={() => setModalOpen(true)}
             className="hidden md:inline-block bg-transparent border border-[#C4A56E] text-[#C4A56E] px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-[#C4A56E] before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left before:z-[-1]"
+            aria-label="Book your safari"
           >
             Reserve
           </button>
           <button 
             className="lg:hidden text-white text-xl cursor-pointer"
             onClick={() => setMobileMenuOpen(true)}
+            aria-label="Toggle menu"
           >
             <i className="fas fa-bars"></i>
           </button>
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
-      <div className={`fixed top-0 right-0 w-4/5 max-w-xs h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* ============================================================
+      MOBILE NAVIGATION
+      ============================================================ */}
+      <div className={`fixed top-0 right-0 w-4/5 max-w-xs h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="navigation" aria-label="Mobile navigation">
         <button 
           className="absolute top-4 right-4 text-white text-xl cursor-pointer opacity-60 hover:opacity-100"
           onClick={() => setMobileMenuOpen(false)}
+          aria-label="Close menu"
         >
           <i className="fas fa-times"></i>
         </button>
@@ -151,8 +197,10 @@ export default function Cuisines() {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative h-screen min-h-[700px] overflow-hidden bg-[#2C2418]">
+      {/* ============================================================
+      HERO SECTION
+      ============================================================ */}
+      <section className="relative h-screen min-h-[700px] overflow-hidden bg-[#2C2418]" aria-label="Cuisine hero banner">
         <div className="absolute inset-0 w-full h-full">
           {heroImages.map((img, index) => (
             <div
@@ -185,7 +233,7 @@ export default function Cuisines() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 right-8 z-[10] flex gap-3">
+        <div className="absolute bottom-8 right-8 z-[10] flex gap-3" role="tablist" aria-label="Hero slideshow navigation">
           {heroImages.map((_, index) => (
             <button
               key={index}
@@ -193,13 +241,17 @@ export default function Cuisines() {
                 index === currentSlide ? 'bg-white border-white w-6 rounded-[3px]' : 'hover:border-white hover:scale-110'
               }`}
               onClick={() => setCurrentSlide(index)}
+              role="tab"
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </section>
 
-      {/* Signature Dining */}
-      <section className="py-16 md:py-20 lg:py-24 max-w-[100vw] overflow-x-hidden">
+      {/* ============================================================
+      SIGNATURE DINING
+      ============================================================ */}
+      <section className="py-16 md:py-20 lg:py-24 max-w-[100vw] overflow-x-hidden" aria-label="Signature dining experiences">
         <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
           <p className="text-[0.6rem] tracking-[8px] text-[#C4A56E] uppercase text-center font-medium mb-4">
             Signature Experiences
@@ -235,8 +287,10 @@ export default function Cuisines() {
         </div>
       </section>
 
-      {/* Our Chefs Section */}
-      <section className="py-16 md:py-20 lg:py-24 bg-[#F3EDE4] max-w-[100vw] overflow-x-hidden">
+      {/* ============================================================
+      OUR CHEFS SECTION
+      ============================================================ */}
+      <section className="py-16 md:py-20 lg:py-24 bg-[#F3EDE4] max-w-[100vw] overflow-x-hidden" aria-label="Meet our chefs">
         <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
           <p className="text-[0.6rem] tracking-[8px] text-[#C4A56E] uppercase text-center font-medium mb-4">
             Culinary Artistry
@@ -249,6 +303,8 @@ export default function Cuisines() {
                 alt="Our talented chefs at Pori Pori Serengeti preparing East African cuisine"
                 className="w-full h-full object-cover transition-transform duration-800 hover:scale-105 bg-[#F3EDE4]"
                 loading="eager"
+                width="800"
+                height="600"
               />
             </div>
             <div>
@@ -298,8 +354,10 @@ export default function Cuisines() {
         </div>
       </section>
 
-      {/* Additional Experiences */}
-      <section className="py-16 md:py-20 lg:py-24 max-w-[100vw] overflow-x-hidden">
+      {/* ============================================================
+      ADDITIONAL EXPERIENCES
+      ============================================================ */}
+      <section className="py-16 md:py-20 lg:py-24 max-w-[100vw] overflow-x-hidden" aria-label="Additional culinary experiences">
         <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
           <p className="text-[0.6rem] tracking-[8px] text-[#C4A56E] uppercase text-center font-medium mb-4">
             Additional Offerings
@@ -335,7 +393,9 @@ export default function Cuisines() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ============================================================
+      CTA SECTION
+      ============================================================ */}
       <div className="mx-4 md:mx-[6%] py-12 md:py-16 lg:py-20 px-6 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-8 md:my-12 lg:my-16 relative overflow-hidden max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-12%)]">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.5)] to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.5)] to-transparent" />
@@ -344,12 +404,15 @@ export default function Cuisines() {
         <button 
           onClick={() => setModalOpen(true)}
           className="bg-transparent border border-white/30 text-white px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[5px] uppercase cursor-pointer transition-all duration-500 font-sans font-light relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-white before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left hover:text-[#1A1510] hover:border-white before:z-[-1]"
+          aria-label="Inquire about dining"
         >
           Inquire About Dining
         </button>
       </div>
 
-      {/* Lightbox */}
+      {/* ============================================================
+      LIGHTBOX
+      ============================================================ */}
       {lightboxOpen && (
         <div 
           className="fixed inset-0 bg-black/97 z-[4000] flex items-center justify-center cursor-pointer"
@@ -358,6 +421,7 @@ export default function Cuisines() {
           <button 
             className="absolute top-8 right-8 text-white text-3xl opacity-60 hover:opacity-100 transition-opacity font-light"
             onClick={closeLightbox}
+            aria-label="Close image viewer"
           >
             &times;
           </button>
@@ -369,16 +433,19 @@ export default function Cuisines() {
         </div>
       )}
 
-      {/* Booking Modal */}
+      {/* ============================================================
+      BOOKING MODAL
+      ============================================================ */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center">
-          <div className="bg-white max-w-md w-[90%] max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4" role="dialog" aria-label="Booking form">
+          <div className="bg-white max-w-md w-full max-h-[85vh] overflow-y-auto rounded-none">
             <div className="bg-[#1A1510] p-6 text-white text-center relative">
               <h3 className="font-['Cormorant_Garamond'] text-xl font-normal">Reserve Your Safari</h3>
               <p className="text-sm text-white/60 mt-1">Our team will respond within 12 hours</p>
               <button 
                 onClick={() => setModalOpen(false)}
                 className="absolute top-4 right-5 text-white text-2xl cursor-pointer"
+                aria-label="Close booking form"
               >
                 &times;
               </button>
@@ -386,42 +453,59 @@ export default function Cuisines() {
 
             <form className="p-6" onSubmit={(e) => {
               e.preventDefault()
+              alert('Thank you! We will contact you within 12 hours.')
+              setModalOpen(false)
             }}>
               <div className="mb-4">
-                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name</label>
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
                   placeholder="Your name"
+                  aria-label="Your full name"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address</label>
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
                   placeholder="hello@example.com"
+                  aria-label="Your email address"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                  placeholder="+255 123 456 789"
+                  aria-label="Your phone number"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in</label>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in *</label>
                   <input
                     type="date"
                     required
                     className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                    aria-label="Check-in date"
                   />
                 </div>
                 <div>
-                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-out</label>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-out *</label>
                   <input
                     type="date"
                     required
                     className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                    aria-label="Check-out date"
                   />
                 </div>
               </div>
@@ -429,13 +513,13 @@ export default function Cuisines() {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Adults</label>
-                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm">
+                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm" aria-label="Number of adults">
                     {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Children</label>
-                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm">
+                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm" aria-label="Number of children">
                     {[0,1,2,3,4].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
@@ -444,9 +528,10 @@ export default function Cuisines() {
               <div className="mb-6">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Special Requests</label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
-                  placeholder="Dietary needs, room preferences..."
+                  placeholder="Dietary needs, room preferences, celebration requests..."
+                  aria-label="Special requests"
                 />
               </div>
 

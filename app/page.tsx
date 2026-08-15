@@ -10,6 +10,7 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
 
   // ============================================================
   // HERO IMAGES - Each with its correct version number
@@ -92,11 +93,32 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [heroImages.length])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [])
+
   // ============================================================
   // TOGGLE FAQ
   // ============================================================
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index)
+  }
+
+  // ============================================================
+  // LOADING SCREEN
+  // ============================================================
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
+          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
+        </div>
+      </div>
+    )
   }
 
   // ============================================================
@@ -107,9 +129,9 @@ export default function Home() {
       {/* ============================================================
       NAVIGATION
       ============================================================ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'mix-blend-difference'}`}>
-        <Link href="/" className="nav-brand">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className="h-10 md:h-12 w-auto" />
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+        <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none">
@@ -179,6 +201,9 @@ export default function Home() {
                 src={img}
                 alt="Poripori Safari"
                 className="w-full h-full object-cover"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'auto'}
+                decoding={index === 0 ? 'sync' : 'async'}
                 onError={(e) => {
                   console.error('Image failed to load:', img)
                   e.currentTarget.style.display = 'none'
@@ -260,6 +285,9 @@ export default function Home() {
                 src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/sanctuary.webp" 
                 alt="Luxury safari experience at Pori Pori Serengeti"
                 className="w-full h-full object-cover transition-transform duration-800 hover:scale-105"
+                loading="lazy"
+                width="800"
+                height="600"
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
                 }}
@@ -399,6 +427,9 @@ export default function Home() {
                     src={post.image}
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105"
+                    loading="lazy"
+                    width="600"
+                    height="400"
                     onError={(e) => {
                       e.currentTarget.src = 'https://placehold.co/600x400/1e293b/fcd34d?text=Pori+Pori'
                     }}
@@ -451,6 +482,9 @@ export default function Home() {
                 src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp"
                 alt="Pori Pori gallery 1"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+                width="400"
+                height="300"
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
                 }}
@@ -465,6 +499,9 @@ export default function Home() {
                 src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp"
                 alt="Pori Pori gallery 2"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+                width="400"
+                height="300"
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
                 }}
@@ -479,6 +516,9 @@ export default function Home() {
                 src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/bushdinner1.webp"
                 alt="Pori Pori gallery 3"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+                width="400"
+                height="300"
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
                 }}
@@ -493,6 +533,9 @@ export default function Home() {
                 src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786827551/food3.webp"
                 alt="Pori Pori gallery 4"
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+                width="400"
+                height="300"
                 onError={(e) => {
                   e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
                 }}
@@ -578,7 +621,6 @@ export default function Home() {
 
             <form className="p-6" onSubmit={(e) => {
               e.preventDefault()
-              // Handle form submission
               alert('Thank you! We will contact you within 12 hours.')
               setModalOpen(false)
             }}>

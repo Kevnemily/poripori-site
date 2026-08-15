@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer'
 const inter = Inter({ 
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
 })
 
 const cormorant = Cormorant_Garamond({ 
@@ -13,11 +14,58 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400', '500', '600', '700'],
   variable: '--font-cormorant',
   style: ['normal', 'italic'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
-  title: 'Pori Pori | Ultra-Luxury Serengeti Safari Lodge & Migration Camp',
+  metadataBase: new URL('https://poriporiluxurylodgeandcamp.com'),
+  title: {
+    default: 'Pori Pori | Ultra-Luxury Serengeti Safari Lodge & Migration Camp',
+    template: '%s | Pori Pori Serengeti'
+  },
   description: 'Experience the magic of the Serengeti at Pori Pori — an ultra-luxury safari sanctuary with canvas suites, private butler service, and front-row seats to the Great Migration in Tanzania.',
+  keywords: 'Serengeti luxury lodge, Tanzania safari camp, Great Migration safari, luxury canvas suites, Pori Pori Serengeti, Serengeti accommodation, luxury safari Tanzania, migration camp Tanzania',
+  authors: [{ name: 'Pori Pori Serengeti' }],
+  creator: 'Pori Pori Serengeti',
+  publisher: 'Pori Pori Serengeti',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://poriporiluxurylodgeandcamp.com/',
+    siteName: 'Pori Pori Serengeti',
+    title: 'Pori Pori | Ultra-Luxury Serengeti Safari Lodge & Migration Camp',
+    description: 'Experience the magic of the Serengeti at Pori Pori — an ultra-luxury safari sanctuary where golden light meets untamed wilderness.',
+    images: [
+      {
+        url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/hero.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Pori Pori Serengeti Luxury Safari Lodge',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pori Pori | Ultra-Luxury Serengeti Safari Lodge & Migration Camp',
+    description: 'Experience the magic of the Serengeti at Pori Pori — an ultra-luxury safari sanctuary where golden light meets untamed wilderness.',
+    images: ['https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/hero.webp'],
+  },
+  alternates: {
+    canonical: 'https://poriporiluxurylodgeandcamp.com/',
+  },
+  category: 'Luxury Safari Lodge',
+  classification: 'Travel & Tourism',
 }
 
 export default function RootLayout({
@@ -28,10 +76,75 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <head>
+        {/* Preload Critical Images */}
+        <link 
+          rel="preload" 
+          as="image" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/hero.webp" 
+          fetchPriority="high"
+        />
+        <link 
+          rel="preload" 
+          as="image" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" 
+          fetchPriority="high"
+        />
+        
+        {/* Preconnect for Performance */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        
+        {/* Font Awesome & Icons */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+        
+        {/* Favicon */}
         <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" />
         <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" />
+        
+        {/* Schema.org Structured Data - Organization */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LodgingBusiness",
+              "name": "Pori Pori Serengeti",
+              "description": "Ultra-luxury safari sanctuary in the heart of the Serengeti, Tanzania. Featuring canvas suites, private butler service, and front-row seats to the Great Migration.",
+              "image": "https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/hero.webp",
+              "url": "https://poriporiluxurylodgeandcamp.com/",
+              "telephone": "+255754430599",
+              "email": "reservations@poripori.com",
+              "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Serengeti",
+                "addressCountry": "Tanzania"
+              },
+              "starRating": {
+                "@type": "Rating",
+                "ratingValue": "5",
+                "bestRating": "5"
+              },
+              "priceRange": "$$$",
+              "amenities": [
+                "Private Butler Service",
+                "Solar Powered",
+                "Private Bathroom",
+                "Free Wi-Fi",
+                "Game Drives",
+                "Balloon Safaris",
+                "Bush Dinners",
+                "Sundowner Cocktails"
+              ],
+              "geo": {
+                "@type": "GeoCoordinates",
+                "latitude": "-2.3333",
+                "longitude": "34.8333"
+              }
+            })
+          }}
+        />
       </head>
       <body className={`${inter.className} antialiased`}>
         {children}

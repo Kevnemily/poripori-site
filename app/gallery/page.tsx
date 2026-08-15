@@ -18,8 +18,11 @@ export default function Gallery() {
   const [currentFilter, setCurrentFilter] = useState('all')
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
+  const [loading, setLoading] = useState(true)
 
-  // All hero images with Cloudinary URLs
+  // ============================================================
+  // HERO IMAGES
+  // ============================================================
   const heroImages = [
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/chef5.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner2.webp',
@@ -27,22 +30,87 @@ export default function Gallery() {
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp'
   ]
 
-  // All gallery images with Cloudinary URLs
+  // ============================================================
+  // GALLERY IMAGES
+  // ============================================================
   const galleryImages: GalleryImage[] = [
-    { title: 'Luxury Safari Suite', description: 'Elegant canvas suite with panoramic views', category: 'suites', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp' },
-    { title: 'Serengeti Sunset', description: 'Golden hour over the endless plains', category: 'landscape', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/outdoor1.webp' },
-    { title: 'Bush Breakfast', description: 'Gourmet dining in the wilderness', category: 'dining', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner1.webp' },
-    { title: "Chef's Special", description: 'Exquisite local cuisine', category: 'dining', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/chef5.webp' },
-    { title: 'Wildlife Encounter', description: 'Elephants in their natural habitat', category: 'wildlife', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782654572/image00011_x62cl4.jpg' },
-    { title: 'Camp Life', description: 'Relaxing at the main lounge', category: 'camp', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786812206/counter.webp' },
-    { title: 'Starlit Dinner', description: 'Romantic dining under the African sky', category: 'dining', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner2.webp' },
-    { title: 'Canvas Suite Interior', description: 'Luxurious safari accommodation', category: 'suites', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/tripple.webp' },
-    { title: 'Serengeti Plains', description: 'Endless savannah stretching to the horizon', category: 'landscape', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/outdoor3.webp' },
-    { title: 'Safari Adventure', description: 'Game drive through the wilderness', category: 'activities', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/service.webp' },
-    { title: 'Sundowner Cocktails', description: 'Enjoying drinks at sunset', category: 'activities', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bar1.webp' },
-    { title: 'Private Deck', description: 'Relaxing with Serengeti views', category: 'camp', url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655153/image00022_dio9g6.jpg' }
+    { 
+      title: 'Luxury Safari Suite', 
+      description: 'Elegant canvas suite with panoramic views of the Serengeti plains.',
+      category: 'suites', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp' 
+    },
+    { 
+      title: 'Serengeti Sunset', 
+      description: 'Golden hour over the endless plains, painting the sky in vibrant colors.',
+      category: 'landscape', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/outdoor1.webp' 
+    },
+    { 
+      title: 'Bush Breakfast', 
+      description: 'Gourmet dining in the wilderness with panoramic views of the savannah.',
+      category: 'dining', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner1.webp' 
+    },
+    { 
+      title: "Chef's Special", 
+      description: 'Exquisite local cuisine crafted by our talented culinary team.',
+      category: 'dining', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/chef5.webp' 
+    },
+    { 
+      title: 'Wildlife Encounter', 
+      description: 'Elephants in their natural habitat roaming the Serengeti plains.',
+      category: 'wildlife', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782654572/image00011_x62cl4.jpg' 
+    },
+    { 
+      title: 'Camp Life', 
+      description: 'Relaxing at the main lounge with stunning views of the Serengeti.',
+      category: 'camp', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786812206/counter.webp' 
+    },
+    { 
+      title: 'Starlit Dinner', 
+      description: 'Romantic dining under the African sky with lantern-lit tables.',
+      category: 'dining', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner2.webp' 
+    },
+    { 
+      title: 'Canvas Suite Interior', 
+      description: 'Luxurious safari accommodation with handcrafted furnishings.',
+      category: 'suites', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/tripple.webp' 
+    },
+    { 
+      title: 'Serengeti Plains', 
+      description: 'Endless savannah stretching to the horizon with acacia trees.',
+      category: 'landscape', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/outdoor3.webp' 
+    },
+    { 
+      title: 'Safari Adventure', 
+      description: 'Game drive through the wilderness with expert naturalist guides.',
+      category: 'activities', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/service.webp' 
+    },
+    { 
+      title: 'Sundowner Cocktails', 
+      description: 'Enjoying drinks at sunset with breathtaking views of the Serengeti.',
+      category: 'activities', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bar1.webp' 
+    },
+    { 
+      title: 'Private Deck', 
+      description: 'Relaxing with Serengeti views from your private suite deck.',
+      category: 'camp', 
+      url: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655153/image00022_dio9g6.jpg' 
+    }
   ]
 
+  // ============================================================
+  // FILTER CATEGORIES
+  // ============================================================
   const filterCategories = [
     { id: 'all', label: 'All Photos' },
     { id: 'suites', label: 'Suites & Rooms' },
@@ -53,6 +121,9 @@ export default function Gallery() {
     { id: 'camp', label: 'Camp Life' }
   ]
 
+  // ============================================================
+  // EFFECTS
+  // ============================================================
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
@@ -68,10 +139,23 @@ export default function Gallery() {
     return () => clearInterval(interval)
   }, [heroImages.length])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 800)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // ============================================================
+  // FILTERED IMAGES
+  // ============================================================
   const filteredImages = currentFilter === 'all' 
     ? galleryImages 
     : galleryImages.filter(img => img.category === currentFilter)
 
+  // ============================================================
+  // LIGHTBOX FUNCTIONS
+  // ============================================================
   const openLightbox = (index: number) => {
     setLightboxIndex(index)
     setLightboxOpen(true)
@@ -102,12 +186,31 @@ export default function Gallery() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [lightboxOpen, filteredImages.length])
 
+  // ============================================================
+  // LOADING SCREEN
+  // ============================================================
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
+          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <>
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`}>
-        <Link href="/" className="nav-brand">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} />
+      {/* ============================================================
+      NAVIGATION
+      ============================================================ */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+        <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none items-center">
@@ -123,23 +226,28 @@ export default function Gallery() {
           <button 
             onClick={() => setModalOpen(true)}
             className="hidden md:inline-block bg-transparent border border-[#C4A56E] text-[#C4A56E] px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-[#C4A56E] before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left before:z-[-1]"
+            aria-label="Book your safari"
           >
             Reserve
           </button>
           <button 
             className="lg:hidden text-white text-xl cursor-pointer"
             onClick={() => setMobileMenuOpen(true)}
+            aria-label="Toggle menu"
           >
             <i className="fas fa-bars"></i>
           </button>
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
-      <div className={`fixed top-0 right-0 w-full h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      {/* ============================================================
+      MOBILE NAVIGATION
+      ============================================================ */}
+      <div className={`fixed top-0 right-0 w-full h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="navigation" aria-label="Mobile navigation">
         <button 
           className="absolute top-8 right-8 text-white text-2xl cursor-pointer opacity-60 hover:opacity-100"
           onClick={() => setMobileMenuOpen(false)}
+          aria-label="Close menu"
         >
           <i className="fas fa-times"></i>
         </button>
@@ -159,8 +267,10 @@ export default function Gallery() {
         </div>
       </div>
 
-      {/* Hero Section */}
-      <section className="relative h-[75vh] min-h-[520px] overflow-hidden bg-[#2C2418]">
+      {/* ============================================================
+      HERO SECTION
+      ============================================================ */}
+      <section className="relative h-[75vh] min-h-[520px] overflow-hidden bg-[#2C2418]" aria-label="Gallery hero banner">
         <div className="absolute inset-0 w-full h-full">
           {heroImages.map((img, index) => (
             <div
@@ -193,7 +303,7 @@ export default function Gallery() {
           </div>
         </div>
 
-        <div className="absolute bottom-8 right-8 z-[10] flex gap-3">
+        <div className="absolute bottom-8 right-8 z-[10] flex gap-3" role="tablist" aria-label="Hero slideshow navigation">
           {heroImages.map((_, index) => (
             <button
               key={index}
@@ -201,13 +311,17 @@ export default function Gallery() {
                 index === currentSlide ? 'bg-white border-white w-7 rounded-[4px]' : 'hover:border-white hover:scale-110'
               }`}
               onClick={() => setCurrentSlide(index)}
+              role="tab"
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </section>
 
-      {/* Filter Bar */}
-      <div className="sticky top-[72px] md:top-[76px] z-[99] py-4 md:py-6 px-4 md:px-8 bg-[rgba(251,248,244,0.95)] backdrop-blur-[15px] border-b border-[rgba(196,165,110,0.2)] max-w-[100vw] overflow-x-auto flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 scrollbar-hide">
+      {/* ============================================================
+      FILTER BAR
+      ============================================================ */}
+      <div className="sticky top-[72px] md:top-[76px] z-[99] py-4 md:py-6 px-4 md:px-8 bg-[rgba(251,248,244,0.95)] backdrop-blur-[15px] border-b border-[rgba(196,165,110,0.2)] max-w-[100vw] overflow-x-auto flex flex-nowrap md:flex-wrap justify-start md:justify-center gap-2 scrollbar-hide" role="tablist" aria-label="Filter gallery images">
         {filterCategories.map((cat) => (
           <button
             key={cat.id}
@@ -217,14 +331,18 @@ export default function Gallery() {
                 : 'bg-white border-[#E0D5C8] text-[#8B7A64] hover:border-[#C4A56E] hover:text-[#C4A56E]'
             }`}
             onClick={() => setCurrentFilter(cat.id)}
+            role="tab"
+            aria-selected={currentFilter === cat.id}
           >
             {cat.label}
           </button>
         ))}
       </div>
 
-      {/* Gallery Grid */}
-      <section className="py-16 md:py-20 max-w-[100vw] overflow-x-hidden">
+      {/* ============================================================
+      GALLERY GRID
+      ============================================================ */}
+      <section className="py-16 md:py-20 max-w-[100vw] overflow-x-hidden" aria-label="Photo gallery">
         <div className="container mx-auto px-4 md:px-8 max-w-[1600px]">
           {filteredImages.length === 0 ? (
             <div className="text-center py-20">
@@ -249,6 +367,8 @@ export default function Gallery() {
                     alt={`${img.title} - ${img.description}`}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 bg-[#F3EDE4]"
                     loading={index < 6 ? 'eager' : 'lazy'}
+                    width="600"
+                    height="450"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = 'https://placehold.co/800x600/F3EDE4/C4A56E?text=Pori+Pori'
                     }}
@@ -268,7 +388,9 @@ export default function Gallery() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ============================================================
+      CTA SECTION
+      ============================================================ */}
       <div className="mx-4 md:mx-[6%] py-16 md:py-20 lg:py-24 px-6 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-8 md:my-12 lg:my-16 relative overflow-hidden max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-12%)]">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.6)] to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.6)] to-transparent" />
@@ -277,12 +399,15 @@ export default function Gallery() {
         <button 
           onClick={() => setModalOpen(true)}
           className="bg-transparent border border-white/30 text-white px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[6px] uppercase cursor-pointer transition-all duration-500 font-sans font-light relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-white before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left hover:text-[#1A1510] hover:border-white before:z-[-1] inline-flex items-center gap-3 hover:gap-4"
+          aria-label="Inquire about availability"
         >
           Inquire About Availability <i className="fas fa-arrow-right transition-all duration-300"></i>
         </button>
       </div>
 
-      {/* Lightbox */}
+      {/* ============================================================
+      LIGHTBOX
+      ============================================================ */}
       {lightboxOpen && filteredImages.length > 0 && (
         <div 
           className="fixed inset-0 bg-black/98 z-[4000] flex items-center justify-center cursor-pointer"
@@ -292,6 +417,7 @@ export default function Gallery() {
             <button 
               className="absolute -top-14 right-0 text-white text-3xl opacity-60 hover:opacity-100 hover:rotate-90 transition-all duration-300 font-light z-[2]"
               onClick={closeLightbox}
+              aria-label="Close image viewer"
             >
               &times;
             </button>
@@ -301,12 +427,14 @@ export default function Gallery() {
             <button 
               className="absolute left-4 md:-left-20 top-1/2 -translate-y-1/2 bg-white/10 border border-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-400 hover:bg-[#C4A56E] hover:border-[#C4A56E] hover:scale-110 z-[2]"
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
+              aria-label="Previous image"
             >
               <i className="fas fa-chevron-left"></i>
             </button>
             <button 
               className="absolute right-4 md:-right-20 top-1/2 -translate-y-1/2 bg-white/10 border border-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition-all duration-400 hover:bg-[#C4A56E] hover:border-[#C4A56E] hover:scale-110 z-[2]"
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
+              aria-label="Next image"
             >
               <i className="fas fa-chevron-right"></i>
             </button>
@@ -314,6 +442,8 @@ export default function Gallery() {
               src={filteredImages[lightboxIndex].url} 
               alt={filteredImages[lightboxIndex].title}
               className="max-w-full max-h-[85vh] object-contain animate-[zoomIn_0.5s_ease]"
+              width="1200"
+              height="800"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = 'https://placehold.co/1200x800/F3EDE4/C4A56E?text=Pori+Pori'
               }}
@@ -330,16 +460,19 @@ export default function Gallery() {
         </div>
       )}
 
-      {/* Booking Modal */}
+      {/* ============================================================
+      BOOKING MODAL
+      ============================================================ */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center">
-          <div className="bg-white max-w-md w-[90%] max-h-[85vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4" role="dialog" aria-label="Booking form">
+          <div className="bg-white max-w-md w-full max-h-[85vh] overflow-y-auto rounded-none">
             <div className="bg-[#1A1510] p-6 text-white text-center relative">
               <h3 className="font-['Cormorant_Garamond'] text-xl font-normal">Reserve Your Safari</h3>
               <p className="text-sm text-white/60 mt-1">Our team will respond within 12 hours</p>
               <button 
                 onClick={() => setModalOpen(false)}
                 className="absolute top-4 right-5 text-white text-2xl cursor-pointer"
+                aria-label="Close booking form"
               >
                 &times;
               </button>
@@ -347,42 +480,59 @@ export default function Gallery() {
 
             <form className="p-6" onSubmit={(e) => {
               e.preventDefault()
+              alert('Thank you! We will contact you within 12 hours.')
+              setModalOpen(false)
             }}>
               <div className="mb-4">
-                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name</label>
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
                   placeholder="Your name"
+                  aria-label="Your full name"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address</label>
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
                   placeholder="hello@example.com"
+                  aria-label="Your email address"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Phone Number *</label>
+                <input
+                  type="tel"
+                  required
+                  className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                  placeholder="+255 123 456 789"
+                  aria-label="Your phone number"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in</label>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in *</label>
                   <input
                     type="date"
                     required
                     className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                    aria-label="Check-in date"
                   />
                 </div>
                 <div>
-                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-out</label>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-out *</label>
                   <input
                     type="date"
                     required
                     className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
+                    aria-label="Check-out date"
                   />
                 </div>
               </div>
@@ -390,13 +540,13 @@ export default function Gallery() {
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Adults</label>
-                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm">
+                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm" aria-label="Number of adults">
                     {[1,2,3,4,5,6].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Children</label>
-                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm">
+                  <select className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm" aria-label="Number of children">
                     {[0,1,2,3,4].map(n => <option key={n} value={n}>{n}</option>)}
                   </select>
                 </div>
@@ -405,9 +555,10 @@ export default function Gallery() {
               <div className="mb-6">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Special Requests</label>
                 <textarea
-                  rows={2}
+                  rows={3}
                   className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm"
-                  placeholder="Dietary needs, room preferences..."
+                  placeholder="Dietary needs, room preferences, celebration requests..."
+                  aria-label="Special requests"
                 />
               </div>
 

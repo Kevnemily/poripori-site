@@ -20,6 +20,7 @@ export default function BlogPostPage() {
   const postId = parseInt(params.id as string)
   
   const [scrolled, setScrolled] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,6 +30,16 @@ export default function BlogPostPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // ============================================================
+  // BLOG POSTS DATA
+  // ============================================================
   const blogPosts: BlogPost[] = [
     {
       id: 1,
@@ -139,6 +150,23 @@ export default function BlogPostPage() {
 
   const post = blogPosts.find(p => p.id === postId)
 
+  // ============================================================
+  // LOADING SCREEN
+  // ============================================================
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
+          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
+        </div>
+      </div>
+    )
+  }
+
+  // ============================================================
+  // POST NOT FOUND
+  // ============================================================
   if (!post) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FFFDF9]">
@@ -153,21 +181,26 @@ export default function BlogPostPage() {
     )
   }
 
+  // ============================================================
+  // RENDER
+  // ============================================================
   return (
     <>
-      {/* Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`}>
-        <Link href="/" className="nav-brand">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className="h-10 md:h-12 w-auto" />
+      {/* ============================================================
+      NAVIGATION
+      ============================================================ */}
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+        <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
         </Link>
         
-        <ul className="hidden lg:flex gap-8 list-none">
-          <li><Link href="/" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Home</Link></li>
-          <li><Link href="/#about" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">About</Link></li>
-          <li><Link href="/cuisines" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Cuisine</Link></li>
-          <li><Link href="/rooms" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Stay</Link></li>
-          <li><Link href="/gallery" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Gallery</Link></li>
-          <li><Link href="/blog" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Blog</Link></li>
+        <ul className="hidden lg:flex gap-8 list-none items-center">
+          <li><Link href="/" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Home</Link></li>
+          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>About</Link></li>
+          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Cuisine</Link></li>
+          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Stay</Link></li>
+          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Gallery</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#C4A56E]`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
@@ -180,22 +213,31 @@ export default function BlogPostPage() {
         </div>
       </nav>
 
-      {/* Blog Post */}
-      <section className="pt-32 pb-16 md:pb-20 bg-[#FFFDF9]">
+      {/* ============================================================
+      BLOG POST
+      ============================================================ */}
+      <section className="pt-32 pb-16 md:pb-20 bg-[#FFFDF9]" aria-label="Blog post content">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl">
           <Link href="/blog" className="inline-flex items-center gap-2 text-[#8B7A64] hover:text-[#C4A56E] transition-colors text-sm mb-6">
             <i className="fas fa-arrow-left"></i> Back to Blog
           </Link>
 
+          {/* Featured Image */}
           <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-xl bg-[#F3EDE4] mb-8">
             <img 
               src={post.image}
               alt={post.title}
               className="w-full h-full object-cover"
+              loading="eager"
+              fetchPriority="high"
+              decoding="sync"
+              width="1200"
+              height="600"
               onError={(e) => {
                 e.currentTarget.src = 'https://placehold.co/1200x600/1e293b/fcd34d?text=Pori+Pori'
               }}
             />
+            {/* Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/70 to-transparent">
               <span className="inline-block bg-[#C4A56E]/90 text-white text-[0.6rem] tracking-[2px] uppercase px-3 py-1 rounded mb-3">
                 {post.category}
@@ -211,6 +253,7 @@ export default function BlogPostPage() {
             </div>
           </div>
 
+          {/* Blog Content */}
           <div 
             className="prose prose-lg prose-gold max-w-none"
             dangerouslySetInnerHTML={{ __html: post.content }}
@@ -218,7 +261,9 @@ export default function BlogPostPage() {
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* ============================================================
+      CTA SECTION
+      ============================================================ */}
       <div className="mx-4 md:mx-[5%] py-8 md:py-12 lg:py-16 px-4 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-6 md:my-8 lg:my-12">
         <h2 className="font-serif text-[clamp(1.8rem,5vw,3rem)] font-light mb-3">Plan Your Safari Adventure</h2>
         <p className="text-white/60 mb-4 text-sm md:text-base">Let us help you create the perfect Serengeti experience</p>
@@ -227,7 +272,9 @@ export default function BlogPostPage() {
         </Link>
       </div>
 
-      {/* Footer */}
+      {/* ============================================================
+      FOOTER
+      ============================================================ */}
       <footer className="bg-[#1A1510] text-white/60 pt-12 pb-8 px-[5%] max-w-[100vw] overflow-x-hidden">
         <div className="max-w-[1400px] mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
