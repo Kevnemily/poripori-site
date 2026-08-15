@@ -376,23 +376,24 @@ export default function Rooms() {
       </section>
 
       {/* ============================================================
-      CAMP INTRO SECTION - FULL CONTENT
+      CAMP INTRO SECTION - MATCHING YOUR ORIGINAL HTML
       ============================================================ */}
-      <section className="py-20 md:py-24 lg:py-28 max-w-[100vw] overflow-x-hidden" aria-label="Migration Camp introduction">
-        <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
+      <section className="section" aria-label="Migration Camp introduction">
+        <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
             <div 
               ref={introRef}
-              className={`relative h-[350px] md:h-[450px] lg:h-[550px] overflow-hidden transition-all duration-1000 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+              className={`relative transition-all duration-1000 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
             >
               <div className="absolute bottom-[-20px] right-[-20px] w-[180px] h-[180px] border border-[rgba(196,165,110,0.3)] z-[-1] hidden md:block" />
               <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner1.webp"
+                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786816917/bushdinner1.webp"
                 alt="Pori Pori Migration Camp - luxury safari accommodation in Serengeti"
-                className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105 bg-[#F3EDE4]"
+                className="w-full h-[350px] md:h-[450px] lg:h-[550px] object-cover transition-transform duration-1000 hover:scale-105 bg-[#F3EDE4]"
                 loading="eager"
+                fetchPriority="high"
                 width="800"
-                height="600"
+                height="550"
               />
             </div>
             <div className={`transition-all duration-1000 delay-200 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
@@ -405,11 +406,8 @@ export default function Rooms() {
               <p className="text-[#8B7A64] leading-relaxed font-light mb-4 text-sm md:text-base">
                 Designed to move with the rhythms of the wild, our Migration Camp places you at the forefront of nature's greatest spectacle. Each canvas suite is positioned to capture the golden light and endless horizons of the Serengeti.
               </p>
-              <p className="text-[#8B7A64] leading-relaxed font-light mb-4 text-sm md:text-base">
-                With only eight exclusive suites, privacy and personalized attention are guaranteed. Our butler service ensures every moment of your stay is seamless, from sunrise wake-up calls with fresh coffee to starlit turn-downs with hot water bottles.
-              </p>
               <p className="text-[#8B7A64] leading-relaxed font-light text-sm md:text-base">
-                Each suite is thoughtfully designed with handcrafted furnishings, en-suite bathrooms with hot water on demand, and private decks that offer uninterrupted views of the Serengeti plains. Whether you're watching the sunrise over the savannah or counting stars under the African sky, every moment at Pori Pori Migration Camp is crafted to be unforgettable.
+                With only eight exclusive suites, privacy and personalized attention are guaranteed. Our butler service ensures every moment of your stay is seamless, from sunrise wake-up calls with fresh coffee to starlit turn-downs with hot water bottles.
               </p>
             </div>
           </div>
