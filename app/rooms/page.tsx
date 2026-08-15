@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -12,9 +12,6 @@ export default function Rooms() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [introVisible, setIntroVisible] = useState(false)
-  const [loading, setLoading] = useState(true)
-  const introRef = useRef<HTMLDivElement>(null)
 
   // ============================================================
   // HERO IMAGES
@@ -187,36 +184,6 @@ export default function Rooms() {
     return () => clearInterval(interval)
   }, [heroImages.length])
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIntroVisible(true)
-          }
-        })
-      },
-      { threshold: 0.3 }
-    )
-
-    if (introRef.current) {
-      observer.observe(introRef.current)
-    }
-
-    return () => {
-      if (introRef.current) {
-        observer.unobserve(introRef.current)
-      }
-    }
-  }, [])
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [])
-
   // ============================================================
   // LIGHTBOX FUNCTIONS
   // ============================================================
@@ -229,20 +196,6 @@ export default function Rooms() {
   const closeLightbox = () => {
     setLightboxOpen(false)
     document.body.style.overflow = ''
-  }
-
-  // ============================================================
-  // LOADING SCREEN
-  // ============================================================
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
-          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
-        </div>
-      </div>
-    )
   }
 
   // ============================================================
@@ -376,29 +329,28 @@ export default function Rooms() {
       </section>
 
       {/* ============================================================
-      CAMP INTRO SECTION - FIXED
+      CAMP INTRO SECTION
       ============================================================ */}
-      <section className="py-20 md:py-24 lg:py-28 max-w-[100vw] overflow-x-hidden" aria-label="Migration Camp introduction">
+      <section className="py-20 md:py-24 lg:py-28 max-w-[100vw] overflow-x-hidden bg-[#FFFDF9]" aria-label="Migration Camp introduction">
         <div className="container mx-auto px-4 md:px-8 max-w-[1400px]">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-            <div 
-              ref={introRef}
-              className={`relative transition-all duration-1000 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
-            >
+            {/* Image */}
+            <div className="relative">
               <div className="absolute bottom-[-20px] right-[-20px] w-[180px] h-[180px] border border-[rgba(196,165,110,0.3)] z-[-1] hidden md:block" />
               <div className="w-full h-[350px] md:h-[450px] lg:h-[550px] overflow-hidden bg-[#F3EDE4]">
                 <img 
                   src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner1.webp"
                   alt="Pori Pori Migration Camp - luxury safari accommodation in Serengeti"
-                  className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-1000"
                   loading="eager"
-                  fetchPriority="high"
                   width="800"
                   height="550"
                 />
               </div>
             </div>
-            <div className={`transition-all duration-1000 delay-200 ${introVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
+            
+            {/* Text */}
+            <div>
               <span className="inline-block px-6 py-2 border border-[#C4A56E] text-[#C4A56E] text-[0.65rem] tracking-[5px] uppercase font-medium mb-6">
                 Seasonal Mobile Camp
               </span>

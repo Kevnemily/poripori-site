@@ -11,7 +11,6 @@ export default function Cuisines() {
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
 
   // ============================================================
   // HERO IMAGES
@@ -95,13 +94,6 @@ export default function Cuisines() {
     return () => clearInterval(interval)
   }, [heroImages.length])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [])
-
   // ============================================================
   // LIGHTBOX FUNCTIONS
   // ============================================================
@@ -114,20 +106,6 @@ export default function Cuisines() {
   const closeLightbox = () => {
     setLightboxOpen(false)
     document.body.style.overflow = ''
-  }
-
-  // ============================================================
-  // LOADING SCREEN
-  // ============================================================
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
-          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
-        </div>
-      </div>
-    )
   }
 
   // ============================================================

@@ -18,7 +18,6 @@ export default function Gallery() {
   const [currentFilter, setCurrentFilter] = useState('all')
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
-  const [loading, setLoading] = useState(true)
 
   // ============================================================
   // HERO IMAGES
@@ -139,13 +138,6 @@ export default function Gallery() {
     return () => clearInterval(interval)
   }, [heroImages.length])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [])
-
   // ============================================================
   // FILTERED IMAGES
   // ============================================================
@@ -185,20 +177,6 @@ export default function Gallery() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [lightboxOpen, filteredImages.length])
-
-  // ============================================================
-  // LOADING SCREEN
-  // ============================================================
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
-          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
-        </div>
-      </div>
-    )
-  }
 
   // ============================================================
   // RENDER
