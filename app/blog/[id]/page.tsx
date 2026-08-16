@@ -20,7 +20,6 @@ export default function BlogPostPage() {
   const postId = parseInt(params.id as string)
   
   const [scrolled, setScrolled] = useState(false)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,22 +29,15 @@ export default function BlogPostPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 600)
-    return () => clearTimeout(timer)
-  }, [])
-
   // ============================================================
-  // BLOG POSTS DATA
+  // BLOG POSTS DATA - WITH OPTIMIZED IMAGES
   // ============================================================
   const blogPosts: BlogPost[] = [
     {
       id: 1,
       title: 'The Great Migration: Nature\'s Greatest Spectacle',
       excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786826166/zebra.webp',
       date: 'June 15, 2025',
       readTime: '5 min read',
       category: 'Wildlife',
@@ -73,7 +65,7 @@ export default function BlogPostPage() {
       id: 2,
       title: 'Luxury Safari: What to Expect at Pori Pori',
       excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786809435/double.webp',
       date: 'May 28, 2025',
       readTime: '4 min read',
       category: 'Luxury',
@@ -106,7 +98,7 @@ export default function BlogPostPage() {
       id: 3,
       title: 'The Best Time to Visit the Serengeti',
       excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/birds.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786826166/birds.webp',
       date: 'May 10, 2025',
       readTime: '6 min read',
       category: 'Travel Guide',
@@ -151,20 +143,6 @@ export default function BlogPostPage() {
   const post = blogPosts.find(p => p.id === postId)
 
   // ============================================================
-  // LOADING SCREEN
-  // ============================================================
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
-          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
-        </div>
-      </div>
-    )
-  }
-
-  // ============================================================
   // POST NOT FOUND
   // ============================================================
   if (!post) {
@@ -191,7 +169,7 @@ export default function BlogPostPage() {
       ============================================================ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_48/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none items-center">
@@ -214,7 +192,7 @@ export default function BlogPostPage() {
       </nav>
 
       {/* ============================================================
-      BLOG POST
+      BLOG POST - INSTANT LOAD
       ============================================================ */}
       <section className="pt-32 pb-16 md:pb-20 bg-[#FFFDF9]" aria-label="Blog post content">
         <div className="container mx-auto px-4 md:px-8 max-w-4xl">
@@ -222,7 +200,7 @@ export default function BlogPostPage() {
             <i className="fas fa-arrow-left"></i> Back to Blog
           </Link>
 
-          {/* Featured Image */}
+          {/* Featured Image - OPTIMIZED */}
           <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-xl bg-[#F3EDE4] mb-8">
             <img 
               src={post.image}

@@ -16,7 +16,6 @@ interface BlogPost {
 
 export default function BlogPage() {
   const [scrolled, setScrolled] = useState(false)
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,19 +25,15 @@ export default function BlogPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 600)
-    return () => clearTimeout(timer)
-  }, [])
-
+  // ============================================================
+  // BLOG POSTS DATA
+  // ============================================================
   const blogPosts: BlogPost[] = [
     {
       id: 1,
       title: 'The Great Migration: Nature\'s Greatest Spectacle',
       excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains. Experience nature\'s most incredible wildlife event.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/zebra.webp',
       date: 'June 15, 2025',
       readTime: '5 min read',
       category: 'Wildlife',
@@ -48,7 +43,7 @@ export default function BlogPage() {
       id: 2,
       title: 'Luxury Safari: What to Expect at Pori Pori',
       excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience at Pori Pori Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786809435/double.webp',
       date: 'May 28, 2025',
       readTime: '4 min read',
       category: 'Luxury',
@@ -58,27 +53,13 @@ export default function BlogPage() {
       id: 3,
       title: 'The Best Time to Visit the Serengeti',
       excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti. Plan your perfect safari.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/birds.webp',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/birds.webp',
       date: 'May 10, 2025',
       readTime: '6 min read',
       category: 'Travel Guide',
       content: `Planning your safari requires understanding the Serengeti's seasons and how they affect wildlife viewing.`
     }
   ]
-
-  // ============================================================
-  // LOADING SCREEN
-  // ============================================================
-  if (loading) {
-    return (
-      <div className="fixed inset-0 z-[10000] bg-[#FBF8F4] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-[50px] h-[50px] border-2 border-[#D4BC8D] border-t-[#C4A56E] rounded-full animate-spin mx-auto" />
-          <div className="mt-4 font-serif tracking-[6px] text-[12px] text-[#8B7A64]">Pori Pori</div>
-        </div>
-      </div>
-    )
-  }
 
   // ============================================================
   // RENDER
@@ -90,7 +71,7 @@ export default function BlogPage() {
       ============================================================ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_48/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none items-center">
@@ -113,11 +94,13 @@ export default function BlogPage() {
       </nav>
 
       {/* ============================================================
-      HERO SECTION
+      HERO SECTION - FAST LOADING
       ============================================================ */}
       <section className="relative h-[40vh] min-h-[300px] overflow-hidden bg-dark flex items-center" aria-label="Blog hero banner">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/birds.webp')" }}>
-          <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1920/v1786826166/birds.webp')" }}>
+            <div className="absolute inset-0 bg-black/60" />
+          </div>
         </div>
         <div className="relative z-10 container mx-auto px-4 md:px-8 text-center text-white">
           <p className="text-[0.6rem] tracking-[8px] text-gold-light uppercase font-light mb-3">Stories</p>
@@ -129,12 +112,12 @@ export default function BlogPage() {
       </section>
 
       {/* ============================================================
-      BLOG POSTS GRID
+      BLOG POSTS GRID - OPTIMIZED FOR SPEED
       ============================================================ */}
       <section className="py-16 md:py-20 bg-[#FFFDF9]" aria-label="Blog posts">
         <div className="container mx-auto px-4 md:px-8 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {blogPosts.map((post) => (
+            {blogPosts.map((post, index) => (
               <Link 
                 key={post.id} 
                 href={`/blog/${post.id}`}
@@ -145,7 +128,9 @@ export default function BlogPage() {
                     src={post.image}
                     alt={post.title}
                     className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105"
-                    loading="lazy"
+                    loading={index < 2 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                    decoding={index === 0 ? 'sync' : 'async'}
                     width="600"
                     height="400"
                     onError={(e) => {

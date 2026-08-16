@@ -10,9 +10,12 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [modalOpen, setModalOpen] = useState(false)
   const [activeFaq, setActiveFaq] = useState<number | null>(null)
+  const [galleryLightboxOpen, setGalleryLightboxOpen] = useState(false)
+  const [galleryLightboxImage, setGalleryLightboxImage] = useState('')
+  const [galleryLightboxTitle, setGalleryLightboxTitle] = useState('')
 
   // ============================================================
-  // HERO IMAGES - Each with its correct version number
+  // HERO IMAGES
   // ============================================================
   const heroImages = [
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/hero.webp',
@@ -21,6 +24,16 @@ export default function Home() {
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/counter.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/service.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner.webp'
+  ]
+
+  // ============================================================
+  // GALLERY IMAGES (Moments)
+  // ============================================================
+  const galleryImages = [
+    { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp', title: 'Zebra on the Serengeti Plains', alt: 'Zebra grazing on Serengeti plains' },
+    { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp', title: 'Colorful Birds of Serengeti', alt: 'Colorful birds in Serengeti' },
+    { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/bushdinner1.webp', title: 'Bush Dinner Under the Stars', alt: 'Bush dinner under African stars' },
+    { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786827551/food3.webp', title: 'Gourmet African Cuisine', alt: 'Gourmet African cuisine' }
   ]
 
   // ============================================================
@@ -57,20 +70,33 @@ export default function Home() {
   ]
 
   // ============================================================
-  // FAQ DATA
+  // FAQ DATA - IMPROVED WITH ICONS
   // ============================================================
   const faqs = [
     {
       question: 'What is included in the nightly rate?',
-      answer: 'All rates include three gourmet meals daily, select beverages, twice-daily shared game drives, park fees, and airport transfers.'
+      answer: 'All rates include three gourmet meals daily, select beverages, twice-daily shared game drives, park fees, and airport transfers.',
+      icon: 'fa-bed'
     },
     {
       question: 'When is the best time to visit?',
-      answer: 'The Great Migration is year-round. June-October offers dramatic river crossings, while December-March features the calving season.'
+      answer: 'The Great Migration is year-round. June-October offers dramatic river crossings, while December-March features the calving season.',
+      icon: 'fa-calendar-alt'
     },
     {
       question: 'Do you accommodate dietary restrictions?',
-      answer: 'Absolutely. Our chef accommodates vegetarian, vegan, gluten-free, and allergies with advance notice.'
+      answer: 'Absolutely. Our chef accommodates vegetarian, vegan, gluten-free, and allergies with advance notice.',
+      icon: 'fa-utensils'
+    },
+    {
+      question: 'How do I get to Pori Pori?',
+      answer: 'We arrange all transfers from Seronera Airstrip. Daily flights connect from Arusha, Kilimanjaro, and Dar es Salaam.',
+      icon: 'fa-plane'
+    },
+    {
+      question: 'Is there Wi-Fi available?',
+      answer: 'Yes, we offer complimentary high-speed Wi-Fi throughout the camp, allowing you to stay connected if you wish.',
+      icon: 'fa-wifi'
     }
   ]
 
@@ -97,6 +123,21 @@ export default function Home() {
   // ============================================================
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index)
+  }
+
+  // ============================================================
+  // GALLERY LIGHTBOX FUNCTIONS
+  // ============================================================
+  const openGalleryLightbox = (src: string, title: string) => {
+    setGalleryLightboxImage(src)
+    setGalleryLightboxTitle(title)
+    setGalleryLightboxOpen(true)
+    document.body.style.overflow = 'hidden'
+  }
+
+  const closeGalleryLightbox = () => {
+    setGalleryLightboxOpen(false)
+    document.body.style.overflow = ''
   }
 
   // ============================================================
@@ -383,7 +424,7 @@ export default function Home() {
       </section>
 
       {/* ============================================================
-      BLOG SECTION
+      BLOG SECTION - WITH VIEW MORE LINK
       ============================================================ */}
       <section id="blog" className="py-12 md:py-16 lg:py-20 bg-sand">
         <div className="container mx-auto px-4 md:px-8">
@@ -438,11 +479,22 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          {/* View More Link */}
+          <div className="text-center mt-10">
+            <Link 
+              href="/blog" 
+              className="inline-flex items-center gap-3 text-gold hover:text-[#B8944F] transition-all duration-300 text-sm tracking-[3px] uppercase font-medium hover:gap-4 group"
+            >
+              View All Blog Posts 
+              <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1"></i>
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ============================================================
-      GALLERY PREVIEW
+      GALLERY PREVIEW - CLICKABLE IMAGES WITH LIGHTBOX
       ============================================================ */}
       <section className="py-12 md:py-16 lg:py-20">
         <div className="container mx-auto px-4 md:px-8">
@@ -455,73 +507,31 @@ export default function Home() {
           <p className="text-center text-taupe mb-8 md:mb-10 text-sm md:text-base font-light">Click any image to view larger</p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-            <div className="aspect-[4/3] overflow-hidden cursor-pointer relative bg-sand group">
-              <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp"
-                alt="Pori Pori gallery 1"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-                width="400"
-                height="300"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
-                }}
-              />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <i className="fas fa-plus"></i>
+            {galleryImages.map((img, index) => (
+              <div 
+                key={index} 
+                className="aspect-[4/3] overflow-hidden cursor-pointer relative bg-sand group"
+                onClick={() => openGalleryLightbox(img.src, img.title)}
+              >
+                <img 
+                  src={img.src}
+                  alt={img.alt}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
+                  width="400"
+                  height="300"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <i className="fas fa-plus"></i>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-white text-xs font-light tracking-wide truncate">{img.title}</p>
+                </div>
               </div>
-            </div>
-
-            <div className="aspect-[4/3] overflow-hidden cursor-pointer relative bg-sand group">
-              <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp"
-                alt="Pori Pori gallery 2"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-                width="400"
-                height="300"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
-                }}
-              />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <i className="fas fa-plus"></i>
-              </div>
-            </div>
-
-            <div className="aspect-[4/3] overflow-hidden cursor-pointer relative bg-sand group">
-              <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/bushdinner1.webp"
-                alt="Pori Pori gallery 3"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-                width="400"
-                height="300"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
-                }}
-              />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <i className="fas fa-plus"></i>
-              </div>
-            </div>
-
-            <div className="aspect-[4/3] overflow-hidden cursor-pointer relative bg-sand group">
-              <img 
-                src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786827551/food3.webp"
-                alt="Pori Pori gallery 4"
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-                width="400"
-                height="300"
-                onError={(e) => {
-                  e.currentTarget.src = 'https://placehold.co/800x600/1e293b/fcd34d?text=Pori+Pori'
-                }}
-              />
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <i className="fas fa-plus"></i>
-              </div>
-            </div>
+            ))}
           </div>
           
           <div className="text-center mt-6">
@@ -533,32 +543,84 @@ export default function Home() {
       </section>
 
       {/* ============================================================
-      FAQ SECTION - WORKING TOGGLE
+      GALLERY LIGHTBOX
       ============================================================ */}
-      <section className="py-12 md:py-16 lg:py-20">
+      {galleryLightboxOpen && (
+        <div 
+          className="fixed inset-0 bg-black/98 z-[4000] flex items-center justify-center cursor-pointer"
+          onClick={closeGalleryLightbox}
+        >
+          <button 
+            className="absolute top-8 right-8 text-white text-3xl opacity-60 hover:opacity-100 hover:rotate-90 transition-all duration-300 font-light z-[2]"
+            onClick={closeGalleryLightbox}
+            aria-label="Close image viewer"
+          >
+            &times;
+          </button>
+          <div className="relative max-w-[90%] max-h-[90vh]">
+            <img 
+              src={galleryLightboxImage} 
+              alt={galleryLightboxTitle}
+              className="max-w-full max-h-[85vh] object-contain animate-[zoomIn_0.4s_ease]"
+            />
+            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-center text-white">
+              <h4 className="font-serif text-2xl text-[#D4BC8D] font-normal mb-1">
+                {galleryLightboxTitle}
+              </h4>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================
+      FAQ SECTION - IMPROVED DESIGN
+      ============================================================ */}
+      <section className="py-12 md:py-16 lg:py-20 bg-[#FBF8F4]">
         <div className="container mx-auto px-4 md:px-8 max-w-3xl">
           <p className="text-[0.6rem] tracking-[6px] text-gold uppercase text-center font-medium mb-3 md:mb-4">
             Inquiries
           </p>
-          <h2 className="font-serif text-[clamp(2rem,6vw,3.5rem)] font-normal text-center text-charcoal mb-8">
-            Frequently Asked
+          <h2 className="font-serif text-[clamp(2rem,6vw,3.5rem)] font-normal text-center text-charcoal mb-3">
+            Frequently Asked Questions
           </h2>
+          <p className="text-center text-taupe max-w-[500px] mx-auto mb-10 text-sm font-light">
+            Find answers to the most common questions about your Serengeti safari experience
+          </p>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {faqs.map((faq, index) => (
               <div 
                 key={index} 
-                className="border-b border-gold/20 py-4 cursor-pointer group"
-                onClick={() => toggleFaq(index)}
+                className={`bg-white border border-[rgba(196,165,110,0.15)] rounded-xl overflow-hidden transition-all duration-300 hover:border-[rgba(196,165,110,0.3)] ${
+                  activeFaq === index ? 'shadow-md border-gold/30' : ''
+                }`}
               >
-                <div className="flex justify-between items-center font-serif text-lg md:text-xl font-medium">
-                  {faq.question}
-                  <span className={`w-6 h-6 border border-gold/20 flex items-center justify-center transition-all duration-300 rounded-full group-hover:border-gold ${activeFaq === index ? 'bg-gold text-white border-gold rotate-45' : ''}`}>
-                    +
-                  </span>
-                </div>
-                <div className={`overflow-hidden transition-all duration-400 text-taupe text-sm leading-relaxed ${activeFaq === index ? 'max-h-40 pt-4' : 'max-h-0'}`}>
-                  {faq.answer}
+                <button
+                  className="w-full flex items-center gap-4 p-5 text-left transition-colors duration-300 hover:bg-[#FBF8F4]"
+                  onClick={() => toggleFaq(index)}
+                >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center text-gold">
+                    <i className={`fas ${faq.icon} text-sm`}></i>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-serif text-base md:text-lg font-medium text-[#2C2418]">
+                      {faq.question}
+                    </h3>
+                  </div>
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                    activeFaq === index 
+                      ? 'border-gold bg-gold text-white rotate-45' 
+                      : 'border-[#D4C5B5] text-gold hover:border-gold'
+                  }`}>
+                    <i className="fas fa-plus text-xs"></i>
+                  </div>
+                </button>
+                <div className={`overflow-hidden transition-all duration-400 ${
+                  activeFaq === index ? 'max-h-48' : 'max-h-0'
+                }`}>
+                  <div className="px-5 pb-5 pt-0 text-taupe text-sm leading-relaxed font-light border-t border-[rgba(196,165,110,0.1)]">
+                    {faq.answer}
+                  </div>
                 </div>
               </div>
             ))}
