@@ -76,7 +76,30 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <head>
-        {/* Preload Critical Images */}
+        {/* ============================================================
+        FAVICON - Optimized with Cloudinary
+        ============================================================ */}
+        <link 
+          rel="icon" 
+          type="image/png" 
+          sizes="32x32" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_32/v1786809435/logo.webp" 
+        />
+        <link 
+          rel="icon" 
+          type="image/png" 
+          sizes="16x16" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_16/v1786809435/logo.webp" 
+        />
+        <link 
+          rel="apple-touch-icon" 
+          sizes="180x180" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_180/v1786809435/logo.webp" 
+        />
+        
+        {/* ============================================================
+        PRELOAD CRITICAL IMAGES
+        ============================================================ */}
         <link 
           rel="preload" 
           as="image" 
@@ -90,20 +113,23 @@ export default function RootLayout({
           fetchPriority="high"
         />
         
-        {/* Preconnect for Performance */}
+        {/* ============================================================
+        PRECONNECT FOR PERFORMANCE
+        ============================================================ */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         
-        {/* Font Awesome & Icons */}
+        {/* ============================================================
+        FONTS & ICONS
+        ============================================================ */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
         
-        {/* Favicon */}
-        <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" />
-        <link rel="apple-touch-icon" sizes="180x180" href="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" />
-        
-        {/* Schema.org Structured Data - Organization */}
+        {/* ============================================================
+        SCHEMA.ORG STRUCTURED DATA
+        ============================================================ */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

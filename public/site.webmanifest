@@ -1,0 +1,21 @@
+{
+  "name": "Pori Pori Serengeti",
+  "short_name": "Pori Pori",
+  "description": "Ultra-Luxury Serengeti Safari Lodge & Migration Camp",
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_192/v1786809435/logo.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_512/v1786809435/logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ],
+  "theme_color": "#C4A56E",
+  "background_color": "#FBF8F4",
+  "display": "standalone",
+  "orientation": "portrait"
+}
