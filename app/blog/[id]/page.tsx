@@ -165,11 +165,11 @@ export default function BlogPostPage() {
   return (
     <>
       {/* ============================================================
-      NAVIGATION
+      NAVIGATION - FIXED LOGO
       ============================================================ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_48/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_120/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="120" height="120" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none items-center">
