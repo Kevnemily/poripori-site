@@ -77,24 +77,46 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <head>
         {/* ============================================================
-        FAVICON - Optimized with Cloudinary
+        FAVICON - Sharp with Cloudinary
         ============================================================ */}
+        {/* Standard favicon - 32x32 */}
         <link 
           rel="icon" 
           type="image/png" 
           sizes="32x32" 
-          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_32/v1786809435/logo.webp" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_32,c_fill/v1786809435/logo.webp" 
         />
+        {/* Small favicon - 16x16 */}
         <link 
           rel="icon" 
           type="image/png" 
           sizes="16x16" 
-          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_16/v1786809435/logo.webp" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_16,c_fill/v1786809435/logo.webp" 
         />
+        {/* Apple Touch Icon - 180x180 */}
         <link 
           rel="apple-touch-icon" 
           sizes="180x180" 
-          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_180/v1786809435/logo.webp" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_180,c_fill/v1786809435/logo.webp" 
+        />
+        {/* Android Chrome - 192x192 */}
+        <link 
+          rel="icon" 
+          type="image/png" 
+          sizes="192x192" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_192,c_fill/v1786809435/logo.webp" 
+        />
+        {/* Android Chrome - 512x512 */}
+        <link 
+          rel="icon" 
+          type="image/png" 
+          sizes="512x512" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_512,c_fill/v1786809435/logo.webp" 
+        />
+        {/* Fallback ICO */}
+        <link 
+          rel="shortcut icon" 
+          href="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_64/v1786809435/logo.webp" 
         />
         
         {/* ============================================================
