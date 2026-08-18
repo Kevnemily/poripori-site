@@ -91,10 +91,49 @@ export async function GET(request: Request) {
   const token = searchParams.get('token')
   
   if (!token) {
-    return new Response('Invalid confirmation token', { status: 400 })
+    return new Response(
+      'Invalid confirmation token. Please check your email and try again.',
+      { 
+        status: 400,
+        headers: {
+          'Content-Type': 'text/html',
+        }
+      }
+    )
   }
   
   // Redirect to the confirmation page
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-  return Response.redirect(`${baseUrl}/confirm?token=${token}`)
+  
+  // If redirect fails, fallback to HTML response
+  try {
+    return Response.redirect(`${baseUrl}/confirm?token=${token}`)
+  } catch (error) {
+    // Fallback: Return a simple HTML page with a link
+    return new Response(
+      `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Confirm Your Subscription</title>
+          <meta http-equiv="refresh" content="0; url=${baseUrl}/confirm?token=${token}">
+          <style>
+            body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+            a { color: #C4A56E; }
+          </style>
+        </head>
+        <body>
+          <h1>Redirecting to confirmation page...</h1>
+          <p>If you are not redirected, <a href="${baseUrl}/confirm?token=${token}">click here</a>.</p>
+        </body>
+      </html>
+      `,
+      {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html',
+        }
+      }
+    )
+  }
 }
