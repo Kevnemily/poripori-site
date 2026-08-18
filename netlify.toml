@@ -11,9 +11,16 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Redirect for old newsletter confirmation links
+# Redirect /confirm to the API route
+[[redirects]]
+  from = "/confirm"
+  to = "/api/confirm"
+  status = 302
+  force = true
+
+# Redirect old API route to new API route
 [[redirects]]
   from = "/api/newsletter/confirm"
-  to = "/confirm"
+  to = "/api/confirm"
   status = 302
   force = true

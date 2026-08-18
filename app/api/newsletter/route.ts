@@ -79,16 +79,12 @@ export async function POST(request: Request) {
       )
     }
 
-    // Build confirmation URL - POINTS TO THE PAGE
+    // Build confirmation URL - NOW POINTS TO THE NEW API ENDPOINT
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const confirmationUrl = `${baseUrl}/confirm?token=${confirmationToken}`
-    
-    // Also create the old API URL for fallback (in case the page doesn't work)
-    const apiConfirmationUrl = `${baseUrl}/api/newsletter/confirm?token=${confirmationToken}`
+    const confirmationUrl = `${baseUrl}/api/confirm?token=${confirmationToken}`
 
-    // Log the URLs for debugging
-    console.log('Confirmation URL (new):', confirmationUrl)
-    console.log('Confirmation URL (old API fallback):', apiConfirmationUrl)
+    // Log the URL for debugging
+    console.log('Confirmation URL:', confirmationUrl)
 
     // Optimized logo URL with Cloudinary transformations
     const LOGO_URL = 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_png,q_auto,w_400/logo.webp'
@@ -156,14 +152,6 @@ export async function POST(request: Request) {
                     If you didn't subscribe to our newsletter, you can safely ignore this email.
                   </p>
                 </div>
-
-                <!-- Debug info (remove in production) -->
-                <!-- 
-                <div style="margin-top: 20px; padding: 10px; background-color: #f0f0f0; border-radius: 4px; font-size: 12px; color: #666; word-break: break-all;">
-                  <p><strong>Debug:</strong> If the button above doesn't work, copy and paste this link into your browser:</p>
-                  <p><a href="${confirmationUrl}" style="color: #0066cc;">${confirmationUrl}</a></p>
-                </div>
-                -->
 
               </div>
 
