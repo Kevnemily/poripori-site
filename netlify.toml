@@ -5,13 +5,15 @@
   publish = ".next"
 
 [build.environment]
-  # Omit the build cache directory from secrets scanning
-  # This prevents false positives from build cache files
   SECRETS_SCAN_OMIT_PATHS = ".netlify/.next/cache/**"
-  
-  # Also omit public keys (these are meant to be public)
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_BASE_URL,NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,NEXT_PUBLIC_SUPABASE_ANON_KEY,NEXT_PUBLIC_SUPABASE_URL"
 
-# Next.js specific settings
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# Redirect for old newsletter confirmation links
+[[redirects]]
+  from = "/api/newsletter/confirm"
+  to = "/confirm"
+  status = 302
+  force = true
