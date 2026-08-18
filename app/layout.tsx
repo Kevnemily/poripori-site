@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import Footer from '@/components/layout/Footer'
+import Script from 'next/script'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -73,6 +74,10 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  // Google Analytics ID - Replace with your actual ID
+  // You can also use environment variable: process.env.NEXT_PUBLIC_GA_ID
+  const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX'
+  
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
       <head>
@@ -148,6 +153,26 @@ export default function RootLayout({
         ============================================================ */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+        
+        {/* ============================================================
+        GOOGLE ANALYTICS
+        ============================================================ */}
+        {GA_ID && GA_ID !== 'G-WYXCMBL6PZ' && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_ID}');
+              `}
+            </Script>
+          </>
+        )}
         
         {/* ============================================================
         SCHEMA.ORG STRUCTURED DATA
