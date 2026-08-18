@@ -74,9 +74,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Google Analytics ID - Replace with your actual ID
-  // You can also use environment variable: process.env.NEXT_PUBLIC_GA_ID
-  const GA_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX'
+  // Google Analytics ID
+  const GA_ID = 'G-WYXCMBL6PZ'
   
   return (
     <html lang="en" className={`${inter.variable} ${cormorant.variable}`}>
@@ -157,22 +156,18 @@ export default function RootLayout({
         {/* ============================================================
         GOOGLE ANALYTICS
         ============================================================ */}
-        {GA_ID && GA_ID !== 'G-WYXCMBL6PZ' && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}');
-              `}
-            </Script>
-          </>
-        )}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-WYXCMBL6PZ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-WYXCMBL6PZ');
+          `}
+        </Script>
         
         {/* ============================================================
         SCHEMA.ORG STRUCTURED DATA
