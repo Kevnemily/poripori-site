@@ -1,11 +1,13 @@
 // app/confirm/page.tsx
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-export default function ConfirmPage() {
+// Separate component that uses useSearchParams
+function ConfirmContent() {
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   
@@ -118,5 +120,21 @@ export default function ConfirmPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function ConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f9fc] p-4">
+        <div className="bg-white rounded-xl p-8 max-w-md w-full text-center shadow-lg">
+          <div className="w-12 h-12 border-4 border-[#C4A56E] border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-[#5A4E3E] mt-4">Loading...</p>
+        </div>
+      </div>
+    }>
+      <ConfirmContent />
+    </Suspense>
   )
 }
