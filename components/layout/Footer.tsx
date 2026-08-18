@@ -1,11 +1,12 @@
 import Link from 'next/link'
+import NewsletterSignup from '@/components/NewsletterSignup'
 
 export default function Footer() {
   return (
     <footer className="bg-[#1A1510] text-white/60 pt-12 pb-8 px-[5%] max-w-[100vw] overflow-x-hidden">
       <div className="max-w-[1400px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-          {/* Brand - No Logo */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-8">
+          {/* Brand */}
           <div>
             <h3 className="text-white font-['Cormorant_Garamond'] text-xl font-normal mb-3">Pori Pori</h3>
             <p className="text-sm text-white/40 font-light">
@@ -73,6 +74,15 @@ export default function Footer() {
               <li><a href="#" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">Terms & Conditions</a></li>
               <li><a href="#" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">Cookie Policy</a></li>
             </ul>
+          </div>
+
+          {/* NEW: Newsletter Column */}
+          <div>
+            <h4 className="text-white font-['Cormorant_Garamond'] text-lg font-normal mb-3">Newsletter</h4>
+            <p className="text-white/40 text-sm font-light mb-4">
+              Subscribe for exclusive offers and safari insights.
+            </p>
+            <NewsletterSignup />
           </div>
         </div>
         
