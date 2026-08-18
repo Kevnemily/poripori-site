@@ -3,15 +3,15 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
-// Initialize Supabase client with service role key
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function POST(request: Request) {
+  // Initialize Resend INSIDE the handler
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  
   try {
     const { email } = await request.json()
 
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     // Optimized logo URL with Cloudinary transformations
     const LOGO_URL = 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_png,q_auto,w_400/logo.webp'
 
-    // Send confirmation email - IMPROVED WITH OPTIMIZED LOGO
+    // Send confirmation email
     const { error: emailError } = await resend.emails.send({
       from: 'Pori Pori Serengeti <newsletter@poriporiluxurylodgeandcamp.com>',
       to: [email],

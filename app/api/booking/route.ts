@@ -3,9 +3,10 @@ import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { BookingConfirmation } from '@/emails/BookingConfirmation'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(request: Request) {
+  // Initialize Resend INSIDE the handler (not at module scope)
+  const resend = new Resend(process.env.RESEND_API_KEY)
+  
   try {
     const body = await request.json()
     
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send auto-reply to the guest - NO ICONS, NO COLORED STRIPS, OPTIMIZED LOGO
+    // Send auto-reply to the guest
     const { data: autoReplyData, error: autoReplyError } = await resend.emails.send({
       from: 'Pori Pori Serengeti <info@poriporiluxurylodgeandcamp.com>',
       to: [email],
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
             <!-- Main Container -->
             <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); margin: 20px;">
               
-              <!-- Header - NO COLORED STRIP, OPTIMIZED LOGO -->
+              <!-- Header -->
               <div style="background-color: #1A1510; padding: 40px 30px 30px; text-align: center;">
                 <div style="margin: 0 auto 20px;">
                   <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_png,q_auto,w_400/logo.webp" alt="Pori Pori Serengeti" style="max-width: 200px; height: auto; display: block; margin: 0 auto;">
@@ -126,7 +127,7 @@ export async function POST(request: Request) {
                   </p>
                 </div>
 
-                <!-- Your Request Details - NO COLORED STRIP -->
+                <!-- Your Request Details -->
                 <div style="margin-bottom: 30px;">
                   <h2 style="font-family: Georgia, serif; font-size: 18px; font-weight: 500; color: #2C2418; margin: 0 0 16px;">
                     Your Request Details
@@ -206,7 +207,7 @@ export async function POST(request: Request) {
                 </div>
               </div>
 
-              <!-- Footer - NO COLORED STRIP, OPTIMIZED LOGO -->
+              <!-- Footer -->
               <div style="padding: 30px 30px 20px; text-align: center; background-color: #FBF8F4; border-top: 1px solid #E8E0D8;">
                 <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_png,q_auto,w_200/logo.webp" alt="Pori Pori Serengeti" style="max-width: 120px; height: auto; margin: 0 auto 12px; display: block;">
                 
