@@ -79,9 +79,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Build confirmation URL
+    // Build confirmation URL - NOW POINTS TO THE PAGE, NOT THE API
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    const confirmationUrl = `${baseUrl}/api/newsletter/confirm?token=${confirmationToken}`
+    const confirmationUrl = `${baseUrl}/confirm?token=${confirmationToken}`
 
     // Optimized logo URL with Cloudinary transformations
     const LOGO_URL = 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_png,q_auto,w_400/logo.webp'
