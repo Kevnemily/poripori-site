@@ -60,7 +60,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-['Cormorant_Garamond'] text-lg font-normal mb-3">Contact</h4>
             <ul className="space-y-2">
-              <li><a href="mailto:reservations@poripori.com" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">reservations@poripori.com</a></li>
+              <li><a href="mailto:reservations@poriporilodgescamps.com" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">reservations@poriporilodgescamps.com</a></li>
+              <li><a href="mailto:info@poriporilodgescamps.com" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">info@poriporilodgescamps.com</a></li>
+              <li><a href="mailto:marketing@poriporilodgescamps.com" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">marketing@poriporilodgescamps.com</a></li>
               <li><a href="tel:+255754430599" className="text-white/40 text-sm hover:text-[#D4BC8D] transition-colors font-light">+255 754 430 599</a></li>
               <li><span className="text-white/40 text-sm font-light">Serengeti, Tanzania</span></li>
             </ul>
@@ -88,7 +90,17 @@ export default function Footer() {
         
         {/* Bottom */}
         <div className="border-t border-white/5 pt-4 text-center text-[0.65rem] text-white/25 font-light tracking-[1px]">
-          <p>&copy; {new Date().getFullYear()} Pori Pori Serengeti — All rights reserved</p>
+          <p>
+            &copy; 2026 Pori Pori Camps &amp; Lodges. All rights reserved. Design by{' '}
+            <a 
+              href="https://pinarcore.xyz" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#D4BC8D] transition-colors"
+            >
+              Pinarcore Solutions
+            </a>
+          </p>
         </div>
       </div>
     </footer>
