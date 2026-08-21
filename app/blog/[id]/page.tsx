@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
@@ -45,18 +45,10 @@ export default function BlogPostPage() {
     safariDescription: ''
   })
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
   // ============================================================
-  // BLOG POSTS DATA - WITH OPTIMIZED IMAGES
+  // BLOG POSTS DATA - Memoized with optimized images
   // ============================================================
-  const blogPosts: BlogPost[] = [
+  const blogPosts: BlogPost[] = useMemo(() => [
     {
       id: 1,
       title: 'The Great Migration: Nature\'s Greatest Spectacle',
@@ -162,49 +154,61 @@ export default function BlogPostPage() {
         <p>No matter when you visit, the Serengeti offers extraordinary wildlife encounters. At Pori Pori, we position our Migration Camp to follow the herds, ensuring you have the best possible experience.</p>
       `
     }
-  ]
+  ], [])
 
   const post = blogPosts.find(p => p.id === postId)
 
   // ============================================================
-  // FORM HANDLERS - UPDATED
+  // EFFECTS
   // ============================================================
-  const handleRoomTypeToggle = (index: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
-    if (!updatedRoomTypes[index].selected) {
-      updatedRoomTypes[index].quantity = 0
-    } else {
-      // If selected, set default quantity to 1
-      updatedRoomTypes[index].quantity = 1
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
     }
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
-  const handleRoomTypeChange = (index: number, value: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    // Allow any positive number, max 10
-    updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+  // ============================================================
+  // FORM HANDLERS - Optimized with useCallback
+  // ============================================================
+  const handleRoomTypeToggle = useCallback((index: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = [...prev.roomTypes]
+      updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
+      if (!updatedRoomTypes[index].selected) {
+        updatedRoomTypes[index].quantity = 0
+      } else {
+        updatedRoomTypes[index].quantity = 1
+      }
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleRoomTypeChange = useCallback((index: number, value: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = [...prev.roomTypes]
+      updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
+
+  const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
-      setBookingForm({ ...bookingForm, [name]: checked })
+      setBookingForm(prev => ({ ...prev, [name]: checked }))
     } else {
-      setBookingForm({ ...bookingForm, [name]: value })
+      setBookingForm(prev => ({ ...prev, [name]: value }))
     }
-  }
+  }, [])
 
   // ============================================================
-  // UPDATED HANDLE SUBMIT - FIXED VALIDATION
+  // HANDLE SUBMIT - Optimized
   // ============================================================
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Fix: Check if any room type has both selected: true AND quantity > 0
     const selectedRooms = bookingForm.roomTypes.filter(r => r.selected === true && r.quantity > 0)
     
     if (selectedRooms.length === 0) {
@@ -212,7 +216,6 @@ export default function BlogPostPage() {
       return
     }
 
-    // Show loading state
     setIsSubmitting(true)
 
     try {
@@ -236,7 +239,6 @@ export default function BlogPostPage() {
       alert('Thank you! Your booking request has been submitted. We will contact you within 12 hours.')
       setModalOpen(false)
       
-      // Reset form
       setBookingForm({
         fullName: '',
         email: '',
@@ -262,7 +264,7 @@ export default function BlogPostPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [bookingForm])
 
   // ============================================================
   // POST NOT FOUND
@@ -289,32 +291,33 @@ export default function BlogPostPage() {
       {/* ============================================================
       NAVIGATION
       ============================================================ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_120/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="120" height="120" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_120/v1786809435/logo.webp" alt="Pori Pori Serengeti - Luxury Safari Lodge Logo" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
         </Link>
         
-        <ul className="hidden lg:flex gap-8 list-none items-center">
-          <li><Link href="/" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Home</Link></li>
-          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>About</Link></li>
-          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Cuisine</Link></li>
-          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Stay</Link></li>
-          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Gallery</Link></li>
-          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#C4A56E]`}>Blog</Link></li>
+        <ul className="hidden lg:flex gap-8 list-none">
+          <li><Link href="/#about" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">About</Link></li>
+          <li><Link href="/safaris" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Safaris</Link></li>
+          <li><Link href="/#experiences" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Experiences</Link></li>
+          <li><Link href="/cuisines" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Cuisine</Link></li>
+          <li><Link href="/rooms" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Stay</Link></li>
+          <li><Link href="/gallery" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Gallery</Link></li>
+          <li><Link href="/blog" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#B8944F]">Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setModalOpen(true)}
-            className="hidden md:inline-block bg-transparent border border-white text-white px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#1A1510] font-sans relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-white before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left before:z-[-1]"
-            aria-label="Book your safari"
+            className="hidden md:inline-block bg-transparent border border-[#1A1510] text-[#1A1510] px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#1A1510] hover:text-white font-sans"
+            aria-label="Book your luxury safari at Pori Pori"
           >
             Reserve
           </button>
           <button 
-            className="lg:hidden text-white text-xl cursor-pointer"
+            className="lg:hidden text-[#1A1510] text-xl cursor-pointer"
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Toggle menu"
+            aria-label="Toggle mobile menu"
           >
             <i className="fas fa-bars"></i>
           </button>
@@ -324,24 +327,25 @@ export default function BlogPostPage() {
       {/* ============================================================
       MOBILE NAVIGATION
       ============================================================ */}
-      <div className={`fixed top-0 right-0 w-full h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="navigation" aria-label="Mobile navigation">
+      <div className={`fixed top-0 right-0 w-4/5 max-w-xs h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`} role="navigation" aria-label="Mobile navigation">
         <button 
-          className="absolute top-8 right-8 text-white text-2xl cursor-pointer opacity-60 hover:opacity-100"
+          className="absolute top-4 right-4 text-white text-xl cursor-pointer opacity-60 hover:opacity-100"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Close menu"
         >
           <i className="fas fa-times"></i>
         </button>
-        <div className="flex flex-col items-center justify-center h-full gap-8">
-          <Link href="/" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-          <Link href="/#about" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</Link>
-          <Link href="/cuisines" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
-          <Link href="/rooms" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
-          <Link href="/gallery" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
-          <Link href="/blog" className="text-white text-2xl tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+        <div className="flex flex-col items-center justify-center h-full gap-6">
+          <Link href="/#about" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</Link>
+          <Link href="/safaris" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Safaris</Link>
+          <Link href="/#experiences" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Experiences</Link>
+          <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
+          <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
+          <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
+          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
-            className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-3 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
+            className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
           >
             Reserve
           </button>
@@ -412,7 +416,7 @@ export default function BlogPostPage() {
       </div>
 
       {/* ============================================================
-      BOOKING MODAL - FIXED
+      BOOKING MODAL
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-label="Booking form">
@@ -430,7 +434,6 @@ export default function BlogPostPage() {
             </div>
 
             <form className="p-6" onSubmit={handleSubmit}>
-              {/* Full Name */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name *</label>
                 <input
@@ -444,7 +447,6 @@ export default function BlogPostPage() {
                 />
               </div>
 
-              {/* Email */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address *</label>
                 <input
@@ -458,7 +460,6 @@ export default function BlogPostPage() {
                 />
               </div>
 
-              {/* Check-in / Check-out */}
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in *</label>
@@ -484,7 +485,6 @@ export default function BlogPostPage() {
                 </div>
               </div>
 
-              {/* Guest Details - MOVED ABOVE ROOM TYPES */}
               <div className="mb-4 bg-[#FBF8F4] p-4 rounded border border-[#E0D5C8]">
                 <p className="text-[0.55rem] tracking-[3px] uppercase text-[#8B7A64] mb-3 font-medium">Guest Details</p>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">
@@ -529,7 +529,6 @@ export default function BlogPostPage() {
                 </div>
               </div>
 
-              {/* Room Types with Checkboxes - MOVED BELOW GUEST DETAILS */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
@@ -567,7 +566,6 @@ export default function BlogPostPage() {
                 </div>
               </div>
 
-              {/* Include Safari Checkbox */}
               <div className="mb-4">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -581,7 +579,6 @@ export default function BlogPostPage() {
                 </label>
               </div>
 
-              {/* Safari Description */}
               {bookingForm.includeSafari && (
                 <div className="mb-4 animate-[fadeIn_0.3s_ease]">
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Describe Your Safari *</label>
@@ -597,7 +594,6 @@ export default function BlogPostPage() {
                 </div>
               )}
 
-              {/* Special Requests */}
               <div className="mb-6">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Special Requests</label>
                 <textarea
@@ -610,7 +606,6 @@ export default function BlogPostPage() {
                 />
               </div>
 
-              {/* Buttons */}
               <div className="flex flex-wrap gap-4 justify-end border-t border-[#F3EDE4] pt-4">
                 <button
                   type="button"

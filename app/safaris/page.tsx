@@ -2,19 +2,9 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
-interface BlogPost {
-  id: number
-  title: string
-  excerpt: string
-  image: string
-  date: string
-  readTime: string
-  category: string
-  content: string
-}
-
-export default function BlogPage() {
+export default function SafarisPage() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
@@ -42,38 +32,68 @@ export default function BlogPage() {
   })
 
   // ============================================================
-  // BLOG POSTS DATA - Memoized
+  // SAFARI PACKAGES - Memoized
   // ============================================================
-  const blogPosts: BlogPost[] = useMemo(() => [
+  const safariPackages = useMemo(() => [
     {
       id: 1,
-      title: 'The Great Migration: Nature\'s Greatest Spectacle',
-      excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains. Experience nature\'s most incredible wildlife event.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/zebra.webp',
-      date: 'June 15, 2025',
-      readTime: '5 min read',
-      category: 'Wildlife',
-      content: `The Great Migration is one of the most spectacular natural events on Earth. Every year, over 1.5 million wildebeest make a circular journey across the Serengeti ecosystem.`
+      title: 'The Great Migration Safari',
+      duration: '5 Days / 4 Nights',
+      description: 'Witness nature\'s greatest spectacle as over 2 million wildebeest and zebras thunder across the Serengeti plains.',
+      price: 'From $2,850',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
+      highlights: ['River Crossings', 'Expert Guides', 'Full-Board'],
+      slug: 'great-migration-safari'
     },
     {
       id: 2,
-      title: 'Luxury Safari: What to Expect at Pori Pori',
-      excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience at Pori Pori Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786809435/double.webp',
-      date: 'May 28, 2025',
-      readTime: '4 min read',
-      category: 'Luxury',
-      content: `At Pori Pori, we believe that luxury is not just about comfort—it's about creating moments that take your breath away.`
+      title: 'Big Five Explorer',
+      duration: '7 Days / 6 Nights',
+      description: 'Track the legendary Big Five — lion, leopard, elephant, rhino, and buffalo — across the Serengeti and Ngorongoro Crater.',
+      price: 'From $4,200',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655000/image00048_dpxzim.jpg',
+      highlights: ['Ngorongoro Crater', 'Night Drives', 'Luxury Camps'],
+      slug: 'big-five-explorer'
     },
     {
       id: 3,
-      title: 'The Best Time to Visit the Serengeti',
-      excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti. Plan your perfect safari.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/birds.webp',
-      date: 'May 10, 2025',
-      readTime: '6 min read',
-      category: 'Travel Guide',
-      content: `Planning your safari requires understanding the Serengeti's seasons and how they affect wildlife viewing.`
+      title: 'Romantic Safari Escape',
+      duration: '3 Days / 2 Nights',
+      description: 'An intimate safari experience for couples — private game drives, champagne sundowners, and a secluded bush dinner under the stars.',
+      price: 'From $1,950',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner.webp',
+      highlights: ['Private Drives', 'Bush Dinner', 'Spa Treatment'],
+      slug: 'romantic-safari-escape'
+    },
+    {
+      id: 4,
+      title: 'Family Safari Adventure',
+      duration: '6 Days / 5 Nights',
+      description: 'A family-friendly safari with activities for all ages — game drives, nature walks, cultural visits, and educational programs.',
+      price: 'From $3,600',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/outdoor1.webp',
+      highlights: ['Family Activities', 'Nature Walks', 'Educational'],
+      slug: 'family-safari-adventure'
+    },
+    {
+      id: 5,
+      title: 'Photography Safari',
+      duration: '8 Days / 7 Nights',
+      description: 'Designed for photography enthusiasts with expert guidance from professional wildlife photographers.',
+      price: 'From $5,200',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp',
+      highlights: ['Expert Photographer', 'Prime Locations', 'Golden Hour Drives'],
+      slug: 'photography-safari'
+    },
+    {
+      id: 6,
+      title: 'Luxury Fly-In Safari',
+      duration: '4 Days / 3 Nights',
+      description: 'Arrive in style with a scenic flight over the Serengeti. Exclusive access to premium viewing locations and personalized service.',
+      price: 'From $3,950',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786825395/balloon.webp',
+      highlights: ['Scenic Flights', 'Exclusive Access', 'Personalized Service'],
+      slug: 'luxury-fly-in-safari'
     }
   ], [])
 
@@ -195,17 +215,17 @@ export default function BlogPage() {
       ============================================================ */}
       <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_120/v1786809435/logo.webp" alt="Pori Pori Serengeti - Luxury Safari Lodge Logo" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti - Luxury Safari Lodge Logo" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none">
           <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>About</Link></li>
-          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
+          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Safaris</Link></li>
           <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
           <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Cuisine</Link></li>
           <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Stay</Link></li>
           <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
-          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Blog</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
@@ -239,12 +259,12 @@ export default function BlogPage() {
         </button>
         <div className="flex flex-col items-center justify-center h-full gap-6">
           <Link href="/#about" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</Link>
-          <Link href="/safaris" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Safaris</Link>
+          <Link href="/safaris" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Safaris</Link>
           <Link href="/#experiences" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Experiences</Link>
           <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
           <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
           <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
-          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
             className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
@@ -255,71 +275,150 @@ export default function BlogPage() {
       </div>
 
       {/* ============================================================
-      HERO SECTION
+      PAGE HEADER
       ============================================================ */}
-      <section className="relative h-[40vh] min-h-[300px] overflow-hidden bg-[#2C2418] flex items-center" aria-label="Blog hero banner">
+      <section className="relative h-[35vh] min-h-[250px] overflow-hidden bg-dark">
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1920/v1786826166/birds.webp')" }}>
-            <div className="absolute inset-0 bg-black/70" />
-          </div>
+          <img
+            src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp"
+            alt="Pori Pori Serengeti Safari Packages"
+            className="w-full h-full object-cover"
+          />
         </div>
-        <div className="relative z-10 container mx-auto px-4 md:px-8 text-center text-white">
-          <p className="text-[0.6rem] tracking-[8px] text-[#D4BC8D] uppercase font-light mb-3 drop-shadow-lg">Stories</p>
-          <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light drop-shadow-xl">Our Blog</h1>
-          <p className="text-white/80 font-light max-w-2xl mx-auto mt-3 text-sm md:text-base drop-shadow-lg">
-            Insights and stories from the heart of the Serengeti
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
+          <p className="text-[0.6rem] tracking-[6px] text-[#D4BC8D] uppercase font-sans font-light mb-3">
+            Safari Packages
+          </p>
+          <h1 className="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light text-white mb-2 drop-shadow-xl">
+            Curated Safari Adventures
+          </h1>
+          <p className="text-white/80 text-sm md:text-base font-light max-w-2xl drop-shadow-lg">
+            Discover our handcrafted safari experiences designed to bring you closer to the magic of the Serengeti
           </p>
         </div>
       </section>
 
       {/* ============================================================
-      BLOG POSTS GRID
+      SAFARI PACKAGES GRID
       ============================================================ */}
-      <section className="py-16 md:py-20 bg-[#FFFDF9]" aria-label="Blog posts">
-        <div className="container mx-auto px-4 md:px-8 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {blogPosts.map((post, index) => (
-              <Link 
-                key={post.id} 
-                href={`/blog/${post.id}`}
-                className="group block bg-white rounded-xl shadow-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl no-underline"
+      <section className="py-12 md:py-16 lg:py-20 bg-[#FBF8F4]">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="text-center mb-8 md:mb-10">
+            <p className="text-[0.6rem] tracking-[6px] text-[#C4A56E] uppercase font-medium mb-2">
+              Choose Your Adventure
+            </p>
+            <h2 className="font-serif text-[clamp(1.8rem,4vw,2.8rem)] font-normal text-[#2C2418] mb-2">
+              Every Safari Tells a Story
+            </h2>
+            <p className="text-[#8B7A64] text-sm font-light max-w-2xl mx-auto">
+              From dramatic river crossings to intimate romantic escapes, find the safari that speaks to your soul
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+            {safariPackages.map((pkg) => (
+              <div 
+                key={pkg.id}
+                className="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border border-[rgba(196,165,110,0.1)]"
               >
-                <div className="relative h-[220px] overflow-hidden bg-[#F3EDE4]">
-                  <img 
-                    src={post.image}
-                    alt={post.title}
+                <div className="relative h-[200px] overflow-hidden">
+                  <img
+                    src={pkg.image}
+                    alt={`${pkg.title} - Pori Pori Serengeti`}
                     className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105"
-                    loading={index < 2 ? 'eager' : 'lazy'}
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                    decoding={index === 0 ? 'sync' : 'async'}
+                    loading="lazy"
                     width="600"
                     height="400"
                     onError={(e) => {
                       e.currentTarget.src = 'https://placehold.co/600x400/1e293b/fcd34d?text=Pori+Pori'
                     }}
                   />
-                  <div className="absolute top-4 left-4 bg-[#C4A56E]/90 text-white text-[0.6rem] tracking-[2px] uppercase px-3 py-1 rounded">
-                    {post.category}
+                  <div className="absolute top-3 right-3 bg-[#1A1510]/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-light tracking-wide">
+                    {pkg.price}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3">
+                    <span className="text-white/90 text-xs font-light tracking-wide flex items-center gap-1.5">
+                      <i className="fas fa-clock text-[#D4BC8D] text-[0.6rem]"></i>
+                      {pkg.duration}
+                    </span>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-3 text-[0.65rem] text-[#8B7A64] font-light mb-2">
-                    <span>{post.date}</span>
-                    <span>·</span>
-                    <span>{post.readTime}</span>
-                  </div>
-                  <h3 className="font-serif text-xl font-medium text-[#2C2418] mb-2 line-clamp-2 group-hover:text-[#C4A56E] transition-colors">
-                    {post.title}
+                <div className="p-4">
+                  <h3 className="font-serif text-lg font-medium text-[#2C2418] mb-1 group-hover:text-[#C4A56E] transition-colors duration-300 line-clamp-1">
+                    {pkg.title}
                   </h3>
-                  <p className="text-[#8B7A64] text-sm font-light leading-relaxed line-clamp-3">
-                    {post.excerpt}
+                  <p className="text-[#8B7A64] text-xs font-light leading-relaxed mb-2 line-clamp-2">
+                    {pkg.description}
                   </p>
-                  <span className="inline-flex items-center gap-2 text-[#C4A56E] text-[0.7rem] tracking-[2px] uppercase font-medium mt-4 group-hover:gap-3 transition-all duration-300">
-                    Read More <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1"></i>
-                  </span>
+                  
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {pkg.highlights.map((highlight, idx) => (
+                      <span key={idx} className="text-[0.45rem] tracking-[1px] uppercase text-[#8B7A64] bg-[#FBF8F4] px-2 py-0.5 rounded-full border border-[#E0D5C8]">
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
+
+                  <Link
+                    href={`/safaris/${pkg.slug}`}
+                    className="inline-flex items-center gap-1.5 text-[#C4A56E] text-[0.6rem] tracking-[2px] uppercase font-medium group-hover:gap-2 transition-all duration-300 hover:text-[#B8944F]"
+                  >
+                    View Details <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1 text-[0.5rem]"></i>
+                  </Link>
                 </div>
-              </Link>
+              </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
+      WHY CHOOSE US SECTION
+      ============================================================ */}
+      <section className="py-12 md:py-16 lg:py-20 bg-white">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="text-center mb-8">
+            <p className="text-[0.6rem] tracking-[6px] text-[#C4A56E] uppercase font-medium mb-2">
+              Why Pori Pori
+            </p>
+            <h2 className="font-serif text-[clamp(1.8rem,4vw,2.8rem)] font-normal text-[#2C2418] mb-2">
+              The Pori Pori Difference
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            <div className="text-center p-4 border border-[rgba(196,165,110,0.15)] rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-[#C4A56E]/10 rounded-full text-[#C4A56E]">
+                <i className="fas fa-users text-xl"></i>
+              </div>
+              <h3 className="font-serif text-base font-medium text-[#2C2418] mb-1">Expert Guides</h3>
+              <p className="text-[#8B7A64] text-xs font-light">Decades of wildlife tracking experience</p>
+            </div>
+
+            <div className="text-center p-4 border border-[rgba(196,165,110,0.15)] rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-[#C4A56E]/10 rounded-full text-[#C4A56E]">
+                <i className="fas fa-car-side text-xl"></i>
+              </div>
+              <h3 className="font-serif text-base font-medium text-[#2C2418] mb-1">Private Vehicles</h3>
+              <p className="text-[#8B7A64] text-xs font-light">Exclusive game drives with customized vehicles</p>
+            </div>
+
+            <div className="text-center p-4 border border-[rgba(196,165,110,0.15)] rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-[#C4A56E]/10 rounded-full text-[#C4A56E]">
+                <i className="fas fa-utensils text-xl"></i>
+              </div>
+              <h3 className="font-serif text-base font-medium text-[#2C2418] mb-1">Gourmet Dining</h3>
+              <p className="text-[#8B7A64] text-xs font-light">Bush breakfasts and starlit dinners</p>
+            </div>
+
+            <div className="text-center p-4 border border-[rgba(196,165,110,0.15)] rounded-xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="w-12 h-12 mx-auto mb-3 flex items-center justify-center bg-[#C4A56E]/10 rounded-full text-[#C4A56E]">
+                <i className="fas fa-leaf text-xl"></i>
+              </div>
+              <h3 className="font-serif text-base font-medium text-[#2C2418] mb-1">Sustainable Tourism</h3>
+              <p className="text-[#8B7A64] text-xs font-light">Conservation and community support</p>
+            </div>
           </div>
         </div>
       </section>
@@ -327,16 +426,14 @@ export default function BlogPage() {
       {/* ============================================================
       CTA SECTION
       ============================================================ */}
-      <div className="mx-4 md:mx-[5%] py-8 md:py-12 lg:py-16 px-4 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-6 md:my-8 lg:my-12 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.6)] to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.6)] to-transparent" />
-        <h2 className="font-serif text-[clamp(1.8rem,5vw,3rem)] font-light mb-3">Plan Your Safari Adventure</h2>
-        <p className="text-white/60 mb-4 text-sm md:text-base">Let us help you create the perfect Serengeti experience</p>
+      <div className="mx-4 md:mx-[5%] py-8 md:py-12 px-4 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-6 md:my-8">
+        <h2 className="font-serif text-[clamp(1.5rem,4vw,2.5rem)] font-light mb-3">Ready for Your Safari Adventure?</h2>
+        <p className="text-white/60 mb-4 text-sm">Let us help you choose the perfect safari package for your dreams</p>
         <button 
           onClick={() => setModalOpen(true)}
-          className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg inline-block no-underline"
+          className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg"
         >
-          Inquire About Availability
+          Contact Our Safari Experts
         </button>
       </div>
 
@@ -344,15 +441,15 @@ export default function BlogPage() {
       BOOKING MODAL
       ============================================================ */}
       {modalOpen && (
-        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-label="Booking form">
+        <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-none my-8">
             <div className="bg-[#1A1510] p-6 text-white text-center relative sticky top-0 z-10">
-              <h3 className="font-['Cormorant_Garamond'] text-xl font-normal">Reserve Your Safari</h3>
+              <h3 className="font-serif text-xl font-normal">Reserve Your Safari</h3>
               <p className="text-sm text-white/60 mt-1">Fill in the details below and our team will respond within 12 hours</p>
               <button 
                 onClick={() => setModalOpen(false)}
                 className="absolute top-4 right-5 text-white text-2xl cursor-pointer hover:opacity-70 transition-opacity"
-                aria-label="Close booking form"
+                aria-label="Close modal"
               >
                 &times;
               </button>

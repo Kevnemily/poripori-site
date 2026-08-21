@@ -131,7 +131,7 @@ export default function Cuisines() {
   }
 
   // ============================================================
-  // FORM HANDLERS - UPDATED
+  // FORM HANDLERS
   // ============================================================
   const handleRoomTypeToggle = (index: number) => {
     const updatedRoomTypes = [...bookingForm.roomTypes]
@@ -139,7 +139,6 @@ export default function Cuisines() {
     if (!updatedRoomTypes[index].selected) {
       updatedRoomTypes[index].quantity = 0
     } else {
-      // If selected, set default quantity to 1
       updatedRoomTypes[index].quantity = 1
     }
     setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
@@ -147,7 +146,6 @@ export default function Cuisines() {
 
   const handleRoomTypeChange = (index: number, value: number) => {
     const updatedRoomTypes = [...bookingForm.roomTypes]
-    // Allow any positive number, max 10
     updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
     setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
   }
@@ -163,12 +161,11 @@ export default function Cuisines() {
   }
 
   // ============================================================
-  // UPDATED HANDLE SUBMIT - FIXED VALIDATION
+  // HANDLE SUBMIT
   // ============================================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Fix: Check if any room type has both selected: true AND quantity > 0
     const selectedRooms = bookingForm.roomTypes.filter(r => r.selected === true && r.quantity > 0)
     
     if (selectedRooms.length === 0) {
@@ -176,7 +173,6 @@ export default function Cuisines() {
       return
     }
 
-    // Show loading state
     setIsSubmitting(true)
 
     try {
@@ -200,7 +196,6 @@ export default function Cuisines() {
       alert('Thank you! Your booking request has been submitted. We will contact you within 12 hours.')
       setModalOpen(false)
       
-      // Reset form
       setBookingForm({
         fullName: '',
         email: '',
@@ -236,32 +231,33 @@ export default function Cuisines() {
       {/* ============================================================
       NAVIGATION
       ============================================================ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/97 backdrop-blur-[20px] shadow-sm border-b border-[rgba(196,165,110,0.2)]' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
-          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti" className={`h-[42px] md:h-[48px] w-auto transition-all duration-300 ${scrolled ? 'h-[38px] md:h-[42px]' : ''}`} width="48" height="48" fetchPriority="high" />
+          <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti - Luxury Safari Lodge Logo" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
         </Link>
         
-        <ul className="hidden lg:flex gap-8 list-none items-center">
-          <li><Link href="/" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Home</Link></li>
-          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>About</Link></li>
-          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Experiences</Link></li>
-          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1px] after:bg-[#C4A56E]`}>Cuisine</Link></li>
-          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Stay</Link></li>
-          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'} relative after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-[#C4A56E] after:transition-all after:duration-500 hover:after:w-full`}>Gallery</Link></li>
+        <ul className="hidden lg:flex gap-8 list-none">
+          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>About</Link></li>
+          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
+          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
+          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Cuisine</Link></li>
+          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Stay</Link></li>
+          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
+          <li><Link href="/#blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setModalOpen(true)}
-            className="hidden md:inline-block bg-transparent border border-white text-white px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#1A1510] font-sans relative overflow-hidden z-0 before:content-[''] before:absolute before:inset-0 before:bg-white before:scale-x-0 before:origin-right before:transition-transform before:duration-500 hover:before:scale-x-100 hover:before:origin-left before:z-[-1]"
-            aria-label="Book your safari"
+            className="hidden md:inline-block bg-transparent border border-white text-white px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#1A1510] font-sans"
+            aria-label="Book your luxury safari at Pori Pori"
           >
             Reserve
           </button>
           <button 
             className="lg:hidden text-white text-xl cursor-pointer"
             onClick={() => setMobileMenuOpen(true)}
-            aria-label="Toggle menu"
+            aria-label="Toggle mobile menu"
           >
             <i className="fas fa-bars"></i>
           </button>
@@ -280,12 +276,13 @@ export default function Cuisines() {
           <i className="fas fa-times"></i>
         </button>
         <div className="flex flex-col items-center justify-center h-full gap-6">
-          <Link href="/" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Home</Link>
           <Link href="/#about" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</Link>
+          <Link href="/safaris" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Safaris</Link>
           <Link href="/#experiences" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Experiences</Link>
           <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
           <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
           <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
+          <Link href="/#blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
             className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
@@ -544,7 +541,7 @@ export default function Cuisines() {
       )}
 
       {/* ============================================================
-      BOOKING MODAL - FIXED
+      BOOKING MODAL
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-label="Booking form">
@@ -562,7 +559,6 @@ export default function Cuisines() {
             </div>
 
             <form className="p-6" onSubmit={handleSubmit}>
-              {/* Full Name */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name *</label>
                 <input
@@ -576,7 +572,6 @@ export default function Cuisines() {
                 />
               </div>
 
-              {/* Email */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address *</label>
                 <input
@@ -590,7 +585,6 @@ export default function Cuisines() {
                 />
               </div>
 
-              {/* Check-in / Check-out */}
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in *</label>
@@ -616,7 +610,6 @@ export default function Cuisines() {
                 </div>
               </div>
 
-              {/* Guest Details - MOVED ABOVE ROOM TYPES */}
               <div className="mb-4 bg-[#FBF8F4] p-4 rounded border border-[#E0D5C8]">
                 <p className="text-[0.55rem] tracking-[3px] uppercase text-[#8B7A64] mb-3 font-medium">Guest Details</p>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">
@@ -661,7 +654,6 @@ export default function Cuisines() {
                 </div>
               </div>
 
-              {/* Room Types with Checkboxes - MOVED BELOW GUEST DETAILS */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
@@ -699,7 +691,6 @@ export default function Cuisines() {
                 </div>
               </div>
 
-              {/* Include Safari Checkbox */}
               <div className="mb-4">
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input
@@ -713,7 +704,6 @@ export default function Cuisines() {
                 </label>
               </div>
 
-              {/* Safari Description */}
               {bookingForm.includeSafari && (
                 <div className="mb-4 animate-[fadeIn_0.3s_ease]">
                   <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Describe Your Safari *</label>
@@ -729,7 +719,6 @@ export default function Cuisines() {
                 </div>
               )}
 
-              {/* Special Requests */}
               <div className="mb-6">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Special Requests</label>
                 <textarea
@@ -742,7 +731,6 @@ export default function Cuisines() {
                 />
               </div>
 
-              {/* Buttons */}
               <div className="flex flex-wrap gap-4 justify-end border-t border-[#F3EDE4] pt-4">
                 <button
                   type="button"

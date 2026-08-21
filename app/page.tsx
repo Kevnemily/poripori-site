@@ -1,11 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-
-// REMOVE THIS SECTION - metadata is already in layout.tsx
-// export const metadata = { ... }
 
 export default function Home() {
   // ALL STATE VARIABLES
@@ -60,6 +57,42 @@ export default function Home() {
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp', title: 'Colorful Birds of Serengeti', alt: 'Colorful birds in Serengeti National Park, Tanzania' },
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/bushdinner1.webp', title: 'Bush Dinner Under the Stars', alt: 'Luxury bush dinner under African stars at Pori Pori Serengeti' },
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786827551/food3.webp', title: 'Gourmet African Cuisine', alt: 'Gourmet African cuisine at Pori Pori luxury safari lodge' }
+  ]
+
+  // ============================================================
+  // SAFARI PACKAGES
+  // ============================================================
+  const safariPackages = [
+    {
+      id: 1,
+      title: 'The Great Migration Safari',
+      duration: '5 Days / 4 Nights',
+      description: 'Witness nature\'s greatest spectacle as over 2 million wildebeest and zebras thunder across the Serengeti plains. Includes expert-guided game drives to prime river crossing points and predator action spots.',
+      price: 'From $2,850',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
+      highlights: ['River Crossings', 'Expert Guides', 'Full-Board', 'Photography Tips'],
+      slug: 'great-migration-safari'
+    },
+    {
+      id: 2,
+      title: 'Big Five Explorer',
+      duration: '7 Days / 6 Nights',
+      description: 'Track the legendary Big Five — lion, leopard, elephant, rhino, and buffalo — across the diverse ecosystems of the Serengeti and the Ngorongoro Crater. Includes night game drives and conservation insights.',
+      price: 'From $4,200',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655000/image00048_dpxzim.jpg',
+      highlights: ['Ngorongoro Crater', 'Night Drives', 'Luxury Camps', 'Conservation'],
+      slug: 'big-five-explorer'
+    },
+    {
+      id: 3,
+      title: 'Romantic Safari Escape',
+      duration: '3 Days / 2 Nights',
+      description: 'An intimate safari experience crafted for couples — private game drives, champagne sundowners at scenic lookouts, and a secluded bush dinner under the star-filled African sky.',
+      price: 'From $1,950',
+      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner.webp',
+      highlights: ['Private Drives', 'Bush Dinner', 'Sundowner Cocktails', 'Spa Treatment'],
+      slug: 'romantic-safari-escape'
+    }
   ]
 
   // ============================================================
@@ -133,7 +166,7 @@ export default function Home() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -267,30 +300,31 @@ export default function Home() {
       {/* ============================================================
       NAVIGATION
       ============================================================ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'mix-blend-difference'}`} role="navigation" aria-label="Main navigation">
+      <nav className={`fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 flex justify-between items-center transition-all duration-300 ${scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm' : 'bg-transparent'}`} role="navigation" aria-label="Main navigation">
         <Link href="/" className="nav-brand" aria-label="Pori Pori Home">
           <img src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" alt="Pori Pori Serengeti - Luxury Safari Lodge Logo" className="h-10 md:h-12 w-auto" width="48" height="48" fetchPriority="high" />
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none">
-          <li><a href="#about" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">About</a></li>
-          <li><a href="#experiences" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Experiences</a></li>
-          <li><Link href="/cuisines" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Cuisine</Link></li>
-          <li><Link href="/rooms" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Stay</Link></li>
-          <li><Link href="/gallery" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Gallery</Link></li>
-          <li><a href="#blog" className="text-[0.68rem] tracking-[3px] uppercase text-white/90 hover:text-gold-light transition-colors duration-300">Blog</a></li>
+          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>About</Link></li>
+          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
+          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
+          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Cuisine</Link></li>
+          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Stay</Link></li>
+          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setModalOpen(true)}
-            className="hidden md:inline-block bg-transparent border border-white text-white px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#1A1510] font-sans"
+            className={`hidden md:inline-block bg-transparent px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 font-sans border ${scrolled ? 'border-[#2C2418] text-[#2C2418] hover:bg-[#2C2418] hover:text-white' : 'border-white text-white hover:bg-white hover:text-[#1A1510]'}`}
             aria-label="Book your luxury safari at Pori Pori"
           >
             Reserve
           </button>
           <button 
-            className="lg:hidden text-white text-xl cursor-pointer"
+            className={`lg:hidden text-xl cursor-pointer ${scrolled ? 'text-[#2C2418]' : 'text-white'}`}
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Toggle mobile menu"
           >
@@ -302,24 +336,25 @@ export default function Home() {
       {/* ============================================================
       MOBILE NAVIGATION
       ============================================================ */}
-      <div className={`fixed top-0 right-0 w-4/5 max-w-xs h-screen bg-dark z-50 transition-all duration-400 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div className={`fixed top-0 right-0 w-4/5 max-w-xs h-screen bg-[#1A1510] z-[1500] transition-all duration-500 ease-in-out shadow-xl ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <button 
-          className="absolute top-4 right-4 text-white text-xl cursor-pointer"
+          className="absolute top-4 right-4 text-white text-xl cursor-pointer opacity-60 hover:opacity-100"
           onClick={() => setMobileMenuOpen(false)}
           aria-label="Close mobile menu"
         >
           <i className="fas fa-times"></i>
         </button>
         <div className="flex flex-col items-center justify-center h-full gap-6">
-          <a href="#about" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</a>
-          <a href="#experiences" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Experiences</a>
-          <Link href="/cuisines" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
-          <Link href="/rooms" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
-          <Link href="/gallery" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
-          <a href="#blog" className="text-white text-lg tracking-[4px] font-serif hover:opacity-70 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</a>
+          <Link href="/#about" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>About</Link>
+          <Link href="/safaris" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Safaris</Link>
+          <Link href="/#experiences" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Experiences</Link>
+          <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
+          <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
+          <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
+          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
-            className="mt-4 bg-transparent border border-gold text-gold px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-gold hover:text-white font-sans"
+            className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
           >
             Reserve
           </button>
@@ -439,9 +474,97 @@ export default function Home() {
       </section>
 
       {/* ============================================================
+      SAFARI PACKAGES SECTION
+      ============================================================ */}
+      <section id="safari" className="py-12 md:py-16 lg:py-20 bg-[#FBF8F4]" aria-label="Pori Pori safari packages">
+        <div className="container mx-auto px-4 md:px-8">
+          <p className="text-[0.6rem] tracking-[6px] text-gold uppercase text-center font-medium mb-3 md:mb-4">
+            Beyond Accommodation
+          </p>
+          <h2 className="font-serif text-[clamp(2rem,6vw,3.5rem)] font-normal text-center text-charcoal mb-2">
+            Safari Experiences, Not Just a Stay
+          </h2>
+          <p className="text-center text-taupe max-w-[90%] md:max-w-[700px] mx-auto mb-3 text-sm md:text-base font-light leading-relaxed">
+            At Pori Pori, we go beyond luxury lodging. We are your gateway to the wild — 
+            <span className="text-gold font-medium"> crafting bespoke safari adventures</span> that bring you face-to-face with the majesty of the Serengeti.
+            <br className="hidden sm:inline" />
+            Every package is tailored to your dreams, whether you're a wildlife enthusiast, a honeymooner, or a family seeking the journey of a lifetime.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mt-10">
+            {safariPackages.map((pkg) => (
+              <div 
+                key={pkg.id}
+                className="group bg-white rounded-xl shadow-md overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border border-[rgba(196,165,110,0.1)]"
+              >
+                <div className="relative h-[240px] overflow-hidden">
+                  <img
+                    src={pkg.image}
+                    alt={`${pkg.title} - Pori Pori Serengeti`}
+                    className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105"
+                    loading="lazy"
+                    width="600"
+                    height="400"
+                    onError={(e) => {
+                      e.currentTarget.src = 'https://placehold.co/600x400/1e293b/fcd34d?text=Pori+Pori'
+                    }}
+                  />
+                  <div className="absolute top-4 right-4 bg-[#1A1510]/90 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-light tracking-wide">
+                    {pkg.price}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
+                    <p className="text-white/90 text-sm font-light tracking-wide flex items-center gap-2">
+                      <i className="fas fa-clock text-gold-light"></i>
+                      {pkg.duration}
+                    </p>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="font-serif text-xl font-medium text-charcoal mb-2 group-hover:text-gold transition-colors duration-300">
+                    {pkg.title}
+                  </h3>
+                  <p className="text-taupe text-sm font-light leading-relaxed mb-4">
+                    {pkg.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {pkg.highlights.slice(0, 3).map((highlight, idx) => (
+                      <span key={idx} className="text-[0.5rem] tracking-[1px] uppercase text-taupe bg-[#FBF8F4] px-3 py-1 rounded-full border border-[#E0D5C8]">
+                        {highlight}
+                      </span>
+                    ))}
+                    {pkg.highlights.length > 3 && (
+                      <span className="text-[0.5rem] tracking-[1px] uppercase text-taupe bg-[#FBF8F4] px-3 py-1 rounded-full border border-[#E0D5C8]">
+                        +{pkg.highlights.length - 3} more
+                      </span>
+                    )}
+                  </div>
+                  <Link
+                    href={`/safaris/${pkg.slug}`}
+                    className="inline-flex items-center gap-2 text-gold text-[0.7rem] tracking-[2px] uppercase font-medium group-hover:gap-3 transition-all duration-300 hover:text-[#B8944F]"
+                  >
+                    Explore This Safari <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1"></i>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link 
+              href="/safaris" 
+              className="inline-flex items-center gap-3 text-gold hover:text-[#B8944F] transition-all duration-300 text-sm tracking-[3px] uppercase font-medium hover:gap-4 group"
+            >
+              View All Safari Packages
+              <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1"></i>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================
       EXPERIENCES SECTION
       ============================================================ */}
-      <section id="experiences" className="py-12 md:py-16 lg:py-20 bg-sand" aria-label="Luxury safari experiences at Pori Pori">
+      <section id="experiences" className="py-12 md:py-16 lg:py-20" aria-label="Luxury safari experiences at Pori Pori">
         <div className="container mx-auto px-4 md:px-8">
           <p className="text-[0.6rem] tracking-[6px] text-gold uppercase text-center font-medium mb-3 md:mb-4">
             Curated Experiences
