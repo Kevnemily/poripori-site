@@ -4,11 +4,37 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+// Define types for the room data
+interface RoomFeature {
+  icon: string
+  label: string
+}
+
+interface RoomItem {
+  image: string
+  title: string
+  description: string
+  features: RoomFeature[]
+}
+
+interface RoomCategory {
+  title: string
+  items: RoomItem[]
+}
+
+type RoomKey = 'migration-double' | 'triple-canvas' | 'family-tent'
+
+interface RoomDetails {
+  'migration-double': RoomCategory
+  'triple-canvas': RoomCategory
+  'family-tent': RoomCategory
+}
+
 export default function Rooms() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [activeRoom, setActiveRoom] = useState('migration-double')
+  const [activeRoom, setActiveRoom] = useState<RoomKey>('migration-double')
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
@@ -49,12 +75,12 @@ export default function Rooms() {
   // ROOM CATEGORIES & DETAILS - Memoized
   // ============================================================
   const roomCategories = useMemo(() => [
-    { id: 'migration-double', label: 'Migration Canvas Double' },
-    { id: 'triple-canvas', label: 'Triple Canvas Suite' },
-    { id: 'family-tent', label: 'Family Tent' }
+    { id: 'migration-double' as const, label: 'Migration Canvas Double' },
+    { id: 'triple-canvas' as const, label: 'Triple Canvas Suite' },
+    { id: 'family-tent' as const, label: 'Family Tent' }
   ], [])
 
-  const roomDetails = useMemo(() => ({
+  const roomDetails: RoomDetails = useMemo(() => ({
     'migration-double': {
       title: 'Migration Canvas Double',
       items: [
@@ -331,25 +357,25 @@ export default function Rooms() {
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none">
-          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>About</Link></li>
-          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
-          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
-          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Cuisine</Link></li>
+          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>About</Link></li>
+          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
+          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
+          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>Cuisine</Link></li>
           <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Stay</Link></li>
-          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
-          <li><Link href="/#blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
+          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white hover:text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setModalOpen(true)}
-            className="hidden md:inline-block bg-transparent border border-white text-white px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-white hover:text-[#1A1510] font-sans"
+            className={`hidden md:inline-block bg-transparent px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 font-sans border ${scrolled ? 'border-[#2C2418] text-[#2C2418] hover:bg-[#2C2418] hover:text-white' : 'border-white text-white hover:bg-white hover:text-[#1A1510]'}`}
             aria-label="Book your luxury safari at Pori Pori"
           >
             Reserve
           </button>
           <button 
-            className="lg:hidden text-white text-xl cursor-pointer"
+            className={`lg:hidden text-xl cursor-pointer ${scrolled ? 'text-[#2C2418]' : 'text-white'}`}
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Toggle mobile menu"
           >
@@ -376,7 +402,7 @@ export default function Rooms() {
           <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
           <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
           <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
-          <Link href="/#blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
             className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
@@ -546,7 +572,7 @@ export default function Rooms() {
                 role="tabpanel"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                  {roomDetails[room.id].items.map((item, index) => (
+                  {roomDetails[room.id].items.map((item: RoomItem, index: number) => (
                     <div
                       key={index}
                       className="bg-white overflow-hidden border border-[rgba(196,165,110,0.2)] transition-all duration-500 cursor-pointer hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(0,0,0,0.1)] hover:border-[#C4A56E] group"
@@ -564,7 +590,7 @@ export default function Rooms() {
                         <h4 className="font-['Cormorant_Garamond'] text-xl md:text-2xl font-medium text-[#2C2418] mb-3">{item.title}</h4>
                         <p className="text-[#8B7A64] text-sm leading-relaxed font-light mb-4">{item.description}</p>
                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 list-none">
-                          {item.features.map((feature, fi) => (
+                          {item.features.map((feature: RoomFeature, fi: number) => (
                             <li key={fi} className="flex items-center gap-2 text-[0.75rem] text-[#8B7A64] font-light transition-all duration-300 group-hover:translate-x-1">
                               <i className={`fas ${feature.icon} text-[#C4A56E] text-[0.65rem]`}></i> {feature.label}
                             </li>
