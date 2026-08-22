@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { useBlogPost } from '@/hooks/useData'
 
 interface BlogPost {
   id: number
@@ -10,7 +11,7 @@ interface BlogPost {
   excerpt: string
   image: string
   date: string
-  readTime: string
+  read_time: string  // Changed to match Supabase column name
   category: string
   content: string
 }
@@ -23,6 +24,9 @@ export default function BlogPostPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Fetch blog post from Supabase
+  const { post, loading } = useBlogPost(postId)
   
   // Booking form state
   const [bookingForm, setBookingForm] = useState({
@@ -44,119 +48,6 @@ export default function BlogPostPage() {
     includeSafari: false,
     safariDescription: ''
   })
-
-  // ============================================================
-  // BLOG POSTS DATA - Memoized with optimized images
-  // ============================================================
-  const blogPosts: BlogPost[] = useMemo(() => [
-    {
-      id: 1,
-      title: 'The Great Migration: Nature\'s Greatest Spectacle',
-      excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786826166/zebra.webp',
-      date: 'June 15, 2025',
-      readTime: '5 min read',
-      category: 'Wildlife',
-      content: `
-        <p>The Great Migration is one of the most spectacular natural events on Earth. Every year, over 1.5 million wildebeest, accompanied by hundreds of thousands of zebras and gazelles, make a circular journey across the Serengeti ecosystem in search of fresh grazing and water.</p>
-        
-        <p>This incredible journey spans approximately 800 kilometers (500 miles) and takes the herds through the Serengeti in Tanzania and the Maasai Mara in Kenya. The migration is driven by the seasonal rains and the availability of grass and water.</p>
-        
-        <h3>When to Witness the Migration</h3>
-        <p>The best time to witness the Great Migration depends on what you want to see:</p>
-        <ul>
-          <li><strong>December - March:</strong> Calving season in the southern Serengeti. Over 8,000 wildebeest calves are born daily.</li>
-          <li><strong>April - May:</strong> The herds begin their journey north, crossing the central Serengeti.</li>
-          <li><strong>June - July:</strong> Dramatic river crossings at the Grumeti River.</li>
-          <li><strong>August - October:</strong> The famous Mara River crossings in the northern Serengeti.</li>
-        </ul>
-        
-        <h3>What Makes Pori Pori Special</h3>
-        <p>Pori Pori's Migration Camp is strategically positioned to follow the herds, ensuring you have front-row seats to nature's greatest show. Our expert guides will take you to the best viewing spots, sharing their knowledge of animal behavior and the ecosystem.</p>
-        
-        <p>Whether you're witnessing a river crossing or watching newborn calves take their first steps, the Great Migration is an experience that will stay with you forever.</p>
-      `
-    },
-    {
-      id: 2,
-      title: 'Luxury Safari: What to Expect at Pori Pori',
-      excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786809435/double.webp',
-      date: 'May 28, 2025',
-      readTime: '4 min read',
-      category: 'Luxury',
-      content: `
-        <p>At Pori Pori, we believe that luxury is not just about comfort—it's about creating moments that take your breath away. From the moment you arrive, you'll be immersed in an experience that combines the best of African hospitality with world-class amenities.</p>
-        
-        <h3>Your Canvas Suite</h3>
-        <p>Each of our eight canvas suites is designed to provide the ultimate in comfort while keeping you connected to the wilderness. Features include:</p>
-        <ul>
-          <li>King-sized beds with premium linens</li>
-          <li>En-suite bathrooms with hot water on demand</li>
-          <li>Private decks with stunning Serengeti views</li>
-          <li>Solar-powered lighting and charging stations</li>
-          <li>Personalized butler service</li>
-        </ul>
-        
-        <h3>Gourmet Dining</h3>
-        <p>Our culinary team creates exquisite meals using fresh, local ingredients. Dining experiences include:</p>
-        <ul>
-          <li><strong>Bush Breakfasts:</strong> Start your day with a gourmet breakfast overlooking the plains.</li>
-          <li><strong>Sundowner Cocktails:</strong> Handcrafted drinks at sunset in the middle of the savannah.</li>
-          <li><strong>Starlit Bush Dinners:</strong> Multi-course dinners under the African sky.</li>
-        </ul>
-        
-        <h3>Safari Experiences</h3>
-        <p>Your stay includes twice-daily game drives with expert naturalists, who will guide you through the Serengeti's diverse ecosystems and help you spot the Big Five and other wildlife.</p>
-      `
-    },
-    {
-      id: 3,
-      title: 'The Best Time to Visit the Serengeti',
-      excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_1200/v1786826166/birds.webp',
-      date: 'May 10, 2025',
-      readTime: '6 min read',
-      category: 'Travel Guide',
-      content: `
-        <p>Planning your safari requires understanding the Serengeti's seasons and how they affect wildlife viewing. Here's a comprehensive guide to help you choose the perfect time for your adventure.</p>
-        
-        <h3>The Seasons in the Serengeti</h3>
-        <p>The Serengeti has two main seasons, each offering unique experiences:</p>
-        
-        <h4>Dry Season (June - October)</h4>
-        <ul>
-          <li>Clear skies and sunny days</li>
-          <li>Wildlife congregates around water sources</li>
-          <li>Ideal for game viewing</li>
-          <li>Popular time for river crossings</li>
-          <li>Cooler temperatures</li>
-        </ul>
-        
-        <h4>Wet Season (November - May)</h4>
-        <ul>
-          <li>Lush green landscapes</li>
-          <li>Calving season (January - March)</li>
-          <li>Fewer tourists</li>
-          <li>Dramatic skies and stunning photography</li>
-          <li>Bird watching at its best</li>
-        </ul>
-        
-        <h3>Migration Calendar</h3>
-        <ul>
-          <li><strong>January - March:</strong> Calving season in southern Serengeti</li>
-          <li><strong>April - May:</strong> Migration moves north</li>
-          <li><strong>June - July:</strong> Grumeti River crossings</li>
-          <li><strong>August - October:</strong> Mara River crossings</li>
-          <li><strong>November - December:</strong> Migration returns south</li>
-        </ul>
-        
-        <p>No matter when you visit, the Serengeti offers extraordinary wildlife encounters. At Pori Pori, we position our Migration Camp to follow the herds, ensuring you have the best possible experience.</p>
-      `
-    }
-  ], [])
-
-  const post = blogPosts.find(p => p.id === postId)
 
   // ============================================================
   // EFFECTS
@@ -266,6 +157,18 @@ export default function BlogPostPage() {
     }
   }, [bookingForm])
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFDF9]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-taupe font-light">Loading blog post...</p>
+        </div>
+      </div>
+    )
+  }
+
   // ============================================================
   // POST NOT FOUND
   // ============================================================
@@ -297,25 +200,25 @@ export default function BlogPostPage() {
         </Link>
         
         <ul className="hidden lg:flex gap-8 list-none">
-          <li><Link href="/#about" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">About</Link></li>
-          <li><Link href="/safaris" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Safaris</Link></li>
-          <li><Link href="/#experiences" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Experiences</Link></li>
-          <li><Link href="/cuisines" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Cuisine</Link></li>
-          <li><Link href="/rooms" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Stay</Link></li>
-          <li><Link href="/gallery" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#1A1510] hover:text-[#B8944F]">Gallery</Link></li>
-          <li><Link href="/blog" className="text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 text-[#B8944F]">Blog</Link></li>
+          <li><Link href="/#about" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>About</Link></li>
+          <li><Link href="/safaris" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Safaris</Link></li>
+          <li><Link href="/#experiences" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Experiences</Link></li>
+          <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Cuisine</Link></li>
+          <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Stay</Link></li>
+          <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
           <button 
             onClick={() => setModalOpen(true)}
-            className="hidden md:inline-block bg-transparent border border-[#1A1510] text-[#1A1510] px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#1A1510] hover:text-white font-sans"
+            className={`hidden md:inline-block bg-transparent px-5 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 font-sans border ${scrolled ? 'border-[#2C2418] text-[#2C2418] hover:bg-[#2C2418] hover:text-white' : 'border-white text-white hover:bg-white hover:text-[#1A1510]'}`}
             aria-label="Book your luxury safari at Pori Pori"
           >
             Reserve
           </button>
           <button 
-            className="lg:hidden text-[#1A1510] text-xl cursor-pointer"
+            className={`lg:hidden text-xl cursor-pointer ${scrolled ? 'text-[#2C2418]' : 'text-white'}`}
             onClick={() => setMobileMenuOpen(true)}
             aria-label="Toggle mobile menu"
           >
@@ -386,7 +289,7 @@ export default function BlogPostPage() {
               <div className="flex items-center gap-4 text-white/70 text-sm mt-3">
                 <span>{post.date}</span>
                 <span>·</span>
-                <span>{post.readTime}</span>
+                <span>{post.read_time}</span>
               </div>
             </div>
           </div>

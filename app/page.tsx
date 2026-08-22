@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSafaris, useBlogPosts } from '@/hooks/useData'
 
 export default function Home() {
   // ALL STATE VARIABLES
@@ -15,6 +16,10 @@ export default function Home() {
   const [galleryLightboxImage, setGalleryLightboxImage] = useState('')
   const [galleryLightboxTitle, setGalleryLightboxTitle] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Fetch data from Supabase
+  const { safaris: safariPackages, loading: safarisLoading } = useSafaris()
+  const { posts: blogPosts, loading: blogLoading } = useBlogPosts()
   
   // Booking form state
   const [bookingForm, setBookingForm] = useState({
@@ -57,75 +62,6 @@ export default function Home() {
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826167/birds.webp', title: 'Colorful Birds of Serengeti', alt: 'Colorful birds in Serengeti National Park, Tanzania' },
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/bushdinner1.webp', title: 'Bush Dinner Under the Stars', alt: 'Luxury bush dinner under African stars at Pori Pori Serengeti' },
     { src: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786827551/food3.webp', title: 'Gourmet African Cuisine', alt: 'Gourmet African cuisine at Pori Pori luxury safari lodge' }
-  ]
-
-  // ============================================================
-  // SAFARI PACKAGES
-  // ============================================================
-  const safariPackages = [
-    {
-      id: 1,
-      title: 'The Great Migration Safari',
-      duration: '5 Days / 4 Nights',
-      description: 'Witness nature\'s greatest spectacle as over 2 million wildebeest and zebras thunder across the Serengeti plains. Includes expert-guided game drives to prime river crossing points and predator action spots.',
-      price: 'From $2,850',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
-      highlights: ['River Crossings', 'Expert Guides', 'Full-Board', 'Photography Tips'],
-      slug: 'great-migration-safari'
-    },
-    {
-      id: 2,
-      title: 'Big Five Explorer',
-      duration: '7 Days / 6 Nights',
-      description: 'Track the legendary Big Five — lion, leopard, elephant, rhino, and buffalo — across the diverse ecosystems of the Serengeti and the Ngorongoro Crater. Includes night game drives and conservation insights.',
-      price: 'From $4,200',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655000/image00048_dpxzim.jpg',
-      highlights: ['Ngorongoro Crater', 'Night Drives', 'Luxury Camps', 'Conservation'],
-      slug: 'big-five-explorer'
-    },
-    {
-      id: 3,
-      title: 'Romantic Safari Escape',
-      duration: '3 Days / 2 Nights',
-      description: 'An intimate safari experience crafted for couples — private game drives, champagne sundowners at scenic lookouts, and a secluded bush dinner under the star-filled African sky.',
-      price: 'From $1,950',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner.webp',
-      highlights: ['Private Drives', 'Bush Dinner', 'Sundowner Cocktails', 'Spa Treatment'],
-      slug: 'romantic-safari-escape'
-    }
-  ]
-
-  // ============================================================
-  // BLOG POSTS
-  // ============================================================
-  const blogPosts = [
-    {
-      id: 1,
-      title: 'The Great Migration: Nature\'s Greatest Spectacle',
-      excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp',
-      date: 'June 15, 2025',
-      readTime: '5 min read',
-      category: 'Wildlife'
-    },
-    {
-      id: 2,
-      title: 'Luxury Safari: What to Expect at Pori Pori',
-      excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/double.webp',
-      date: 'May 28, 2025',
-      readTime: '4 min read',
-      category: 'Luxury'
-    },
-    {
-      id: 3,
-      title: 'The Best Time to Visit the Serengeti',
-      excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1782655110/lion.jpg',
-      date: 'May 10, 2025',
-      readTime: '6 min read',
-      category: 'Travel Guide'
-    }
   ]
 
   // ============================================================
@@ -290,6 +226,18 @@ export default function Home() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Show loading state while fetching data
+  if (safarisLoading || blogLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-taupe font-light">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   // ============================================================
@@ -711,7 +659,7 @@ export default function Home() {
                   <div className="flex items-center gap-3 text-[0.65rem] text-taupe font-light mb-2">
                     <span>{post.date}</span>
                     <span>·</span>
-                    <span>{post.readTime}</span>
+                    <span>{post.read_time}</span>
                   </div>
                   <h3 className="font-serif text-xl font-medium text-charcoal mb-2 line-clamp-2 group-hover:text-gold transition-colors duration-300">
                     {post.title}

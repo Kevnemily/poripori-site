@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import Link from 'next/link'
+import { useBlogPosts } from '@/hooks/useData'
 
 interface BlogPost {
   id: number
@@ -19,6 +20,9 @@ export default function BlogPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  // Fetch blog posts from Supabase
+  const { posts: blogPosts, loading } = useBlogPosts()
   
   // Booking form state
   const [bookingForm, setBookingForm] = useState({
@@ -40,42 +44,6 @@ export default function BlogPage() {
     includeSafari: false,
     safariDescription: ''
   })
-
-  // ============================================================
-  // BLOG POSTS DATA - Memoized
-  // ============================================================
-  const blogPosts: BlogPost[] = useMemo(() => [
-    {
-      id: 1,
-      title: 'The Great Migration: Nature\'s Greatest Spectacle',
-      excerpt: 'Witness the annual migration of over 1.5 million wildebeest across the Serengeti plains. Experience nature\'s most incredible wildlife event.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/zebra.webp',
-      date: 'June 15, 2025',
-      readTime: '5 min read',
-      category: 'Wildlife',
-      content: `The Great Migration is one of the most spectacular natural events on Earth. Every year, over 1.5 million wildebeest make a circular journey across the Serengeti ecosystem.`
-    },
-    {
-      id: 2,
-      title: 'Luxury Safari: What to Expect at Pori Pori',
-      excerpt: 'From private butler service to gourmet bush dinners, discover the ultimate safari experience at Pori Pori Serengeti.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786809435/double.webp',
-      date: 'May 28, 2025',
-      readTime: '4 min read',
-      category: 'Luxury',
-      content: `At Pori Pori, we believe that luxury is not just about comfort—it's about creating moments that take your breath away.`
-    },
-    {
-      id: 3,
-      title: 'The Best Time to Visit the Serengeti',
-      excerpt: 'A comprehensive guide to the seasons and wildlife viewing opportunities in the Serengeti. Plan your perfect safari.',
-      image: 'https://res.cloudinary.com/dp7piqlbe/image/upload/f_auto,q_auto,w_600/v1786826166/birds.webp',
-      date: 'May 10, 2025',
-      readTime: '6 min read',
-      category: 'Travel Guide',
-      content: `Planning your safari requires understanding the Serengeti's seasons and how they affect wildlife viewing.`
-    }
-  ], [])
 
   // ============================================================
   // EFFECTS
@@ -184,6 +152,18 @@ export default function BlogPage() {
       setIsSubmitting(false)
     }
   }, [bookingForm])
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-taupe font-light">Loading blog posts...</p>
+        </div>
+      </div>
+    )
+  }
 
   // ============================================================
   // RENDER
@@ -306,7 +286,7 @@ export default function BlogPage() {
                   <div className="flex items-center gap-3 text-[0.65rem] text-[#8B7A64] font-light mb-2">
                     <span>{post.date}</span>
                     <span>·</span>
-                    <span>{post.readTime}</span>
+                    <span>{post.read_time}</span>
                   </div>
                   <h3 className="font-serif text-xl font-medium text-[#2C2418] mb-2 line-clamp-2 group-hover:text-[#C4A56E] transition-colors">
                     {post.title}
