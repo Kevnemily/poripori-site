@@ -178,7 +178,7 @@ export default function Home() {
   }
 
   // ============================================================
-  // HANDLE SUBMIT
+  // HANDLE SUBMIT - UPDATED WITH formType
   // ============================================================
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -201,6 +201,7 @@ export default function Home() {
         body: JSON.stringify({
           ...bookingForm,
           roomTypes: selectedRooms,
+          formType: 'homepage',
         }),
       })
 

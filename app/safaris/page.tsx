@@ -10,6 +10,8 @@ export default function SafarisPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [showWhatsApp, setShowWhatsApp] = useState(false)
   
   // Fetch safaris from Supabase
   const { safaris: safariPackages, loading } = useSafaris()
@@ -41,10 +43,18 @@ export default function SafarisPage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
+      setShowWhatsApp(window.scrollY > 300)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Handle loading state
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => setIsLoading(false), 400)
+    }
+  }, [loading])
 
   // ============================================================
   // FORM HANDLERS - Optimized with useCallback
@@ -81,7 +91,7 @@ export default function SafarisPage() {
   }, [])
 
   // ============================================================
-  // HANDLE SUBMIT - Optimized
+  // HANDLE SUBMIT - UPDATED WITH formType
   // ============================================================
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -104,6 +114,7 @@ export default function SafarisPage() {
         body: JSON.stringify({
           ...bookingForm,
           roomTypes: selectedRooms,
+          formType: 'safaris',
         }),
       })
 
@@ -143,14 +154,68 @@ export default function SafarisPage() {
     }
   }, [bookingForm])
 
-  // Show loading state
-  if (loading) {
+  // ============================================================
+  // LOADING SCREEN WITH ANIMATED LOGO
+  // ============================================================
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-taupe font-light">Loading safaris...</p>
+      <div className="fixed inset-0 bg-[#1A1510] flex flex-col items-center justify-center z-[9999]">
+        <div className="absolute inset-0 bg-gold/5 blur-3xl rounded-full"></div>
+        
+        <div className="relative">
+          <img 
+            src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" 
+            alt="Pori Pori Serengeti" 
+            className="w-24 h-24 md:w-32 md:h-32 object-contain animate-[logoPulse_2s_ease-in-out_infinite]"
+            style={{
+              filter: 'drop-shadow(0 0 40px rgba(196, 165, 110, 0.2))'
+            }}
+          />
         </div>
+        
+        <div className="mt-8 text-center">
+          <p className="text-white/60 text-sm tracking-[0.3em] uppercase font-light animate-[fadeInUp_0.8s_ease-out]">
+            Loading Safaris
+            <span className="inline-flex">
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite] ml-1" style={{ animationDelay: '0s' }}>.</span>
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.2s' }}>.</span>
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.4s' }}>.</span>
+            </span>
+          </p>
+        </div>
+
+        <style jsx>{`
+          @keyframes logoPulse {
+            0%, 100% { 
+              transform: scale(1); 
+              opacity: 0.9;
+            }
+            50% { 
+              transform: scale(1.08); 
+              opacity: 1;
+            }
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes bounce {
+            0%, 80%, 100% { 
+              transform: translateY(0);
+              opacity: 0.3;
+            }
+            40% { 
+              transform: translateY(-6px);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -225,6 +290,32 @@ export default function SafarisPage() {
       </div>
 
       {/* ============================================================
+      WHATSAPP FLOATING ACTION BUTTON
+      ============================================================ */}
+      <div className={`fixed bottom-6 right-6 z-[2000] transition-all duration-500 transform ${showWhatsApp ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-75 translate-y-10 pointer-events-none'}`}>
+        <a
+          href="https://wa.me/255759638883"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(37,211,102,0.4)]"
+          aria-label="Chat with us on WhatsApp"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] group-hover:bg-[#1DA851] transition-all duration-300">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 448 512" 
+              className="w-7 h-7 fill-white"
+            >
+              <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.7 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+            </svg>
+          </div>
+          <span className="pr-5 font-medium text-sm tracking-wide hidden sm:inline-block">
+            Chat with us
+          </span>
+        </a>
+      </div>
+
+      {/* ============================================================
       PAGE HEADER
       ============================================================ */}
       <section className="relative h-[35vh] min-h-[250px] overflow-hidden bg-dark">
@@ -268,9 +359,10 @@ export default function SafarisPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
             {safariPackages.map((pkg) => (
-              <div 
+              <Link
                 key={pkg.id}
-                className="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border border-[rgba(196,165,110,0.1)]"
+                href={`/safaris/${pkg.slug}`}
+                className="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border border-[rgba(196,165,110,0.1)] no-underline cursor-pointer block"
               >
                 <div className="relative h-[200px] overflow-hidden">
                   <img
@@ -304,7 +396,7 @@ export default function SafarisPage() {
                   
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {Array.isArray(pkg.highlights) ? (
-                      pkg.highlights.map((highlight, idx) => (
+                      pkg.highlights.slice(0, 3).map((highlight, idx) => (
                         <span key={idx} className="text-[0.45rem] tracking-[1px] uppercase text-[#8B7A64] bg-[#FBF8F4] px-2 py-0.5 rounded-full border border-[#E0D5C8]">
                           {highlight}
                         </span>
@@ -316,14 +408,11 @@ export default function SafarisPage() {
                     )}
                   </div>
 
-                  <Link
-                    href={`/safaris/${pkg.slug}`}
-                    className="inline-flex items-center gap-1.5 text-[#C4A56E] text-[0.6rem] tracking-[2px] uppercase font-medium group-hover:gap-2 transition-all duration-300 hover:text-[#B8944F]"
-                  >
+                  <span className="inline-flex items-center gap-1.5 text-[#C4A56E] text-[0.6rem] tracking-[2px] uppercase font-medium group-hover:gap-2 transition-all duration-300">
                     View Details <i className="fas fa-arrow-right transition-all duration-300 group-hover:translate-x-1 text-[0.5rem]"></i>
-                  </Link>
+                  </span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -412,7 +501,202 @@ export default function SafarisPage() {
             </div>
 
             <form className="p-6" onSubmit={handleSubmit}>
-              {/* ... rest of the form ... */}
+              <div className="mb-4">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  required
+                  value={bookingForm.fullName}
+                  onChange={handleFormChange}
+                  className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                  placeholder="Your full name"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Email Address *</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={bookingForm.email}
+                  onChange={handleFormChange}
+                  className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                  placeholder="hello@example.com"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-in *</label>
+                  <input
+                    type="date"
+                    name="checkIn"
+                    required
+                    value={bookingForm.checkIn}
+                    onChange={handleFormChange}
+                    className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Check-out *</label>
+                  <input
+                    type="date"
+                    name="checkOut"
+                    required
+                    value={bookingForm.checkOut}
+                    onChange={handleFormChange}
+                    className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4 bg-[#FBF8F4] p-4 rounded border border-[#E0D5C8]">
+                <p className="text-[0.55rem] tracking-[3px] uppercase text-[#8B7A64] mb-3 font-medium">Guest Details</p>
+                <p className="text-xs text-[#8B7A64] mb-3 font-light">
+                  <span className="font-medium text-[#2C2418]">Adults:</span> 12 years and older &nbsp;|&nbsp; 
+                  <span className="font-medium text-[#2C2418]">Children:</span> 6-11 years &nbsp;|&nbsp; 
+                  <span className="font-medium text-[#2C2418]">Infants:</span> Under 6 years
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] block mb-1">Adults (12+) *</label>
+                    <select
+                      name="adults"
+                      value={bookingForm.adults}
+                      onChange={handleFormChange}
+                      className="w-full p-2.5 border border-[#E0D5C8] bg-white font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                    >
+                      {[1,2,3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] block mb-1">Children (6-11 yrs)</label>
+                    <select
+                      name="children6to11"
+                      value={bookingForm.children6to11}
+                      onChange={handleFormChange}
+                      className="w-full p-2.5 border border-[#E0D5C8] bg-white font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                    >
+                      {[0,1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] block mb-1">Infants (Under 6)</label>
+                    <select
+                      name="childrenUnder6"
+                      value={bookingForm.childrenUnder6}
+                      onChange={handleFormChange}
+                      className="w-full p-2.5 border border-[#E0D5C8] bg-white font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                    >
+                      {[0,1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
+                <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
+                <div className="space-y-3">
+                  {bookingForm.roomTypes.map((room, index) => (
+                    <div key={index} className="bg-[#FFFDF9] border border-[#E0D5C8] p-3 rounded transition-all duration-200 hover:border-[#C4A56E]">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={room.selected}
+                          onChange={() => handleRoomTypeToggle(index)}
+                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer"
+                          id={`room-${index}`}
+                        />
+                        <label htmlFor={`room-${index}`} className="text-sm text-[#2C2418] flex-1 cursor-pointer">
+                          {room.type}
+                        </label>
+                        {room.selected && (
+                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease]">
+                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64]">Qty:</label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              value={room.quantity || 1}
+                              onChange={(e) => handleRoomTypeChange(index, parseInt(e.target.value) || 1)}
+                              className="w-16 p-1.5 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="includeSafari"
+                    checked={bookingForm.includeSafari}
+                    onChange={handleFormChange}
+                    className="w-4 h-4 accent-[#C4A56E] cursor-pointer"
+                  />
+                  <span className="text-sm text-[#2C2418]">Include a Safari Trip</span>
+                </label>
+              </div>
+
+              {bookingForm.includeSafari && (
+                <div className="mb-4 animate-[fadeIn_0.3s_ease]">
+                  <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Describe Your Safari *</label>
+                  <textarea
+                    name="safariDescription"
+                    required={bookingForm.includeSafari}
+                    value={bookingForm.safariDescription}
+                    onChange={handleFormChange}
+                    rows={3}
+                    className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                    placeholder="e.g., 3-day wildlife safari, balloon safari, cultural visits, etc."
+                  />
+                </div>
+              )}
+
+              <div className="mb-6">
+                <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Special Requests</label>
+                <textarea
+                  name="specialRequests"
+                  value={bookingForm.specialRequests}
+                  onChange={handleFormChange}
+                  rows={3}
+                  className="w-full p-2.5 border border-[#E0D5C8] bg-[#FFFDF9] font-sans text-sm focus:outline-none focus:border-[#C4A56E] transition-colors"
+                  placeholder="Dietary needs, room preferences, celebration requests, accessibility requirements..."
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-4 justify-end border-t border-[#F3EDE4] pt-4">
+                <button
+                  type="button"
+                  onClick={() => setModalOpen(false)}
+                  className="bg-transparent border border-[#D4C5B5] px-5 py-2.5 text-[0.65rem] tracking-[3px] uppercase cursor-pointer font-sans hover:border-[#C4A56E] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className={`bg-[#C4A56E] border-none text-white px-6 py-2.5 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-colors hover:bg-[#B8944F] font-sans ${
+                    isSubmitting ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin mr-2"></i> Sending...
+                    </>
+                  ) : (
+                    'Submit Request'
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>

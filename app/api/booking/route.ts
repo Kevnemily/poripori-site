@@ -2,17 +2,21 @@
 import { NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { BookingConfirmation } from '@/emails/BookingConfirmation'
+import { SafariBookingConfirmation } from '@/emails/SafariBookingConfirmation'  // ← Capital S
 
 export async function POST(request: Request) {
-  // Initialize Resend INSIDE the handler (not at module scope)
   const resend = new Resend(process.env.RESEND_API_KEY)
   
   try {
     const body = await request.json()
     
     const {
+      formType,
       fullName,
       email,
+      phone,
+      countryCode,
+      country,
       checkIn,
       checkOut,
       roomTypes,
@@ -22,6 +26,8 @@ export async function POST(request: Request) {
       specialRequests,
       includeSafari,
       safariDescription,
+      safariName,
+      postTitle,
     } = body
 
     // Validate required fields
@@ -32,13 +38,51 @@ export async function POST(request: Request) {
       )
     }
 
-    // Send email to info@poriporilodgescamps.com
-    const { data, error } = await resend.emails.send({
-      from: 'Pori Pori Booking <booking@poriporiluxurylodgeandcamp.com>',
-      to: ['info@poriporilodgescamps.com'],
-      replyTo: email,
-      subject: `New Booking Request from ${fullName}`,
-      react: BookingConfirmation({
+    // Determine which email template to use based on form type
+    let adminEmailSubject = ''
+    let adminEmailComponent = null
+
+    if (formType === 'safari-details') {
+      // Safari Details Page Booking
+      adminEmailSubject = `New Safari Booking: ${safariName || 'Safari'} - ${fullName}`
+      adminEmailComponent = SafariBookingConfirmation({
+        fullName,
+        email,
+        phone: phone || 'Not provided',
+        countryCode: countryCode || '',
+        country: country || 'Not provided',
+        checkIn,
+        checkOut,
+        roomTypes,
+        adults,
+        children6to11,
+        childrenUnder6,
+        specialRequests: specialRequests || '',
+        includeSafari: includeSafari || false,
+        safariDescription: safariDescription || '',
+        safariName: safariName || 'Safari Package',
+      })
+    } else {
+      // All other bookings (homepage, cuisines, rooms, gallery, safaris, blog, blog-post, etc.)
+      let subjectSuffix = ''
+      
+      // Customize subject based on form type
+      if (formType === 'blog-post' && postTitle) {
+        subjectSuffix = ` - Blog Post: ${postTitle}`
+      } else if (formType === 'cuisines') {
+        subjectSuffix = ' - Cuisine Inquiry'
+      } else if (formType === 'rooms') {
+        subjectSuffix = ' - Room Inquiry'
+      } else if (formType === 'gallery') {
+        subjectSuffix = ' - Gallery Inquiry'
+      } else if (formType === 'safaris') {
+        subjectSuffix = ' - Safari Inquiry'
+      } else if (formType === 'blog') {
+        subjectSuffix = ' - Blog Inquiry'
+      }
+      
+      adminEmailSubject = `New Booking Request from ${fullName}${subjectSuffix}`
+      adminEmailComponent = BookingConfirmation({
         fullName,
         email,
         checkIn,
@@ -47,10 +91,19 @@ export async function POST(request: Request) {
         adults,
         children6to11,
         childrenUnder6,
-        specialRequests,
-        includeSafari,
-        safariDescription,
-      }),
+        specialRequests: specialRequests || '',
+        includeSafari: includeSafari || false,
+        safariDescription: safariDescription || '',
+      })
+    }
+
+    // Send email to admin
+    const { data, error } = await resend.emails.send({
+      from: 'Pori Pori Booking <booking@poriporiluxurylodgeandcamp.com>',
+      to: ['info@poriporilodgescamps.com'],
+      replyTo: email,
+      subject: adminEmailSubject,
+      react: adminEmailComponent,
     })
 
     if (error) {
@@ -125,6 +178,20 @@ export async function POST(request: Request) {
                   <p style="font-size: 16px; line-height: 1.6; color: #5A4E3E; margin: 0;">
                     A member of our team will contact you within <strong style="color: #C4A56E;">12 hours</strong> to confirm availability and finalize your booking.
                   </p>
+                  ${safariName ? `
+                    <div style="margin-top: 16px; padding: 12px 16px; background-color: #FBF8F4; border-left: 3px solid #C4A56E; border-radius: 4px;">
+                      <p style="margin: 0; font-size: 14px; color: #5A4E3E;">
+                        <strong style="color: #C4A56E;">Safari Package:</strong> ${safariName}
+                      </p>
+                    </div>
+                  ` : ''}
+                  ${postTitle ? `
+                    <div style="margin-top: 16px; padding: 12px 16px; background-color: #FBF8F4; border-left: 3px solid #C4A56E; border-radius: 4px;">
+                      <p style="margin: 0; font-size: 14px; color: #5A4E3E;">
+                        <strong style="color: #C4A56E;">Blog Post:</strong> ${postTitle}
+                      </p>
+                    </div>
+                  ` : ''}
                 </div>
 
                 <!-- Your Request Details -->
@@ -181,7 +248,7 @@ export async function POST(request: Request) {
                         <p style="margin: 0 0 4px; font-size: 13px; color: #8B7A64; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
                           Safari Request
                         </p>
-                        <p style="margin: 4px 0; font-size: 15px; color: #5A4E3E;">${safariDescription}</p>
+                        <p style="margin: 4px 0; font-size: 15px; color: #5A4E3E;">${safariDescription || ''}</p>
                       </div>
                     ` : ''}
 
@@ -237,7 +304,6 @@ export async function POST(request: Request) {
 
     if (autoReplyError) {
       console.error('Auto-reply error:', autoReplyError)
-      // Don't fail the main request if auto-reply fails
     }
 
     return NextResponse.json(

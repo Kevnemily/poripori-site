@@ -20,6 +20,8 @@ export default function BlogPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [showWhatsApp, setShowWhatsApp] = useState(false)
   
   // Fetch blog posts from Supabase
   const { posts: blogPosts, loading } = useBlogPosts()
@@ -51,10 +53,18 @@ export default function BlogPage() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
+      setShowWhatsApp(window.scrollY > 300)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Handle loading state
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => setIsLoading(false), 400)
+    }
+  }, [loading])
 
   // ============================================================
   // FORM HANDLERS - Optimized with useCallback
@@ -91,7 +101,7 @@ export default function BlogPage() {
   }, [])
 
   // ============================================================
-  // HANDLE SUBMIT - Optimized
+  // HANDLE SUBMIT - UPDATED WITH formType
   // ============================================================
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -114,6 +124,7 @@ export default function BlogPage() {
         body: JSON.stringify({
           ...bookingForm,
           roomTypes: selectedRooms,
+          formType: 'blog',
         }),
       })
 
@@ -153,14 +164,68 @@ export default function BlogPage() {
     }
   }, [bookingForm])
 
-  // Show loading state
-  if (loading) {
+  // ============================================================
+  // LOADING SCREEN WITH ANIMATED LOGO
+  // ============================================================
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-taupe font-light">Loading blog posts...</p>
+      <div className="fixed inset-0 bg-[#1A1510] flex flex-col items-center justify-center z-[9999]">
+        <div className="absolute inset-0 bg-gold/5 blur-3xl rounded-full"></div>
+        
+        <div className="relative">
+          <img 
+            src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" 
+            alt="Pori Pori Serengeti" 
+            className="w-24 h-24 md:w-32 md:h-32 object-contain animate-[logoPulse_2s_ease-in-out_infinite]"
+            style={{
+              filter: 'drop-shadow(0 0 40px rgba(196, 165, 110, 0.2))'
+            }}
+          />
         </div>
+        
+        <div className="mt-8 text-center">
+          <p className="text-white/60 text-sm tracking-[0.3em] uppercase font-light animate-[fadeInUp_0.8s_ease-out]">
+            Loading Blog Posts
+            <span className="inline-flex">
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite] ml-1" style={{ animationDelay: '0s' }}>.</span>
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.2s' }}>.</span>
+              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.4s' }}>.</span>
+            </span>
+          </p>
+        </div>
+
+        <style jsx>{`
+          @keyframes logoPulse {
+            0%, 100% { 
+              transform: scale(1); 
+              opacity: 0.9;
+            }
+            50% { 
+              transform: scale(1.08); 
+              opacity: 1;
+            }
+          }
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          @keyframes bounce {
+            0%, 80%, 100% { 
+              transform: translateY(0);
+              opacity: 0.3;
+            }
+            40% { 
+              transform: translateY(-6px);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </div>
     )
   }
@@ -232,6 +297,32 @@ export default function BlogPage() {
             Reserve
           </button>
         </div>
+      </div>
+
+      {/* ============================================================
+      WHATSAPP FLOATING ACTION BUTTON
+      ============================================================ */}
+      <div className={`fixed bottom-6 right-6 z-[2000] transition-all duration-500 transform ${showWhatsApp ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-75 translate-y-10 pointer-events-none'}`}>
+        <a
+          href="https://wa.me/255759638883"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-3 bg-[#25D366] hover:bg-[#1DA851] text-white rounded-full shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(37,211,102,0.4)]"
+          aria-label="Chat with us on WhatsApp"
+        >
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#25D366] group-hover:bg-[#1DA851] transition-all duration-300">
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 448 512" 
+              className="w-7 h-7 fill-white"
+            >
+              <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.7 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+            </svg>
+          </div>
+          <span className="pr-5 font-medium text-sm tracking-wide hidden sm:inline-block">
+            Chat with us
+          </span>
+        </a>
       </div>
 
       {/* ============================================================

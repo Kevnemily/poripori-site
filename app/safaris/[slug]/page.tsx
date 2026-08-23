@@ -141,43 +141,39 @@ export default function SafariDetailsPage() {
   }, [])
 
   // ============================================================
-  // FORM HANDLERS - Optimized with useCallback
+  // FORM HANDLERS
   // ============================================================
-  const handleRoomTypeToggle = useCallback((index: number) => {
-    setBookingForm(prev => {
-      const updatedRoomTypes = [...prev.roomTypes]
-      updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
-      if (!updatedRoomTypes[index].selected) {
-        updatedRoomTypes[index].quantity = 0
-      } else {
-        updatedRoomTypes[index].quantity = 1
-      }
-      return { ...prev, roomTypes: updatedRoomTypes }
-    })
-  }, [])
+  const handleRoomTypeToggle = (index: number) => {
+    const updatedRoomTypes = [...bookingForm.roomTypes]
+    updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
+    if (!updatedRoomTypes[index].selected) {
+      updatedRoomTypes[index].quantity = 0
+    } else {
+      updatedRoomTypes[index].quantity = 1
+    }
+    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
+  }
 
-  const handleRoomTypeChange = useCallback((index: number, value: number) => {
-    setBookingForm(prev => {
-      const updatedRoomTypes = [...prev.roomTypes]
-      updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
-      return { ...prev, roomTypes: updatedRoomTypes }
-    })
-  }, [])
+  const handleRoomTypeChange = (index: number, value: number) => {
+    const updatedRoomTypes = [...bookingForm.roomTypes]
+    updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
+    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
+  }
 
-  const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
-      setBookingForm(prev => ({ ...prev, [name]: checked }))
+      setBookingForm({ ...bookingForm, [name]: checked })
     } else {
-      setBookingForm(prev => ({ ...prev, [name]: value }))
+      setBookingForm({ ...bookingForm, [name]: value })
     }
-  }, [])
+  }
 
   // ============================================================
-  // HANDLE SUBMIT - Optimized
+  // HANDLE SUBMIT
   // ============================================================
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     const selectedRooms = bookingForm.roomTypes.filter(r => r.selected === true && r.quantity > 0)
@@ -199,6 +195,7 @@ export default function SafariDetailsPage() {
           ...bookingForm,
           roomTypes: selectedRooms,
           safariName: selectedPackage?.title,
+          formType: 'safari-details',
         }),
       })
 
@@ -239,7 +236,7 @@ export default function SafariDetailsPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [bookingForm, selectedPackage])
+  }
 
   // ============================================================
   // LOADING SCREEN WITH ANIMATED LOGO
@@ -680,7 +677,7 @@ export default function SafariDetailsPage() {
       )}
 
       {/* ============================================================
-      BOOKING MODAL - UPDATED WITH COUNTRY CODE & COUNTRY FIELD
+      BOOKING MODAL - FIXED WITH NATIVE CHECKBOXES
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto">
@@ -861,6 +858,7 @@ export default function SafariDetailsPage() {
                 </div>
               </div>
 
+              {/* Room Types - NATIVE CHECKBOXES (same as Cuisines page) */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
