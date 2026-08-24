@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -53,6 +53,96 @@ const countries = [
   'Vatican City', 'Venezuela', 'Vietnam', 'Yemen', 'Zambia', 'Zimbabwe'
 ]
 
+// Define types for the new fields
+interface SummaryDetails {
+  duration?: string
+  destinations?: string[]
+  accommodation?: string
+  group_size?: string
+  best_time?: string
+}
+
+interface Rates {
+  [key: string]: string
+}
+
+interface ItineraryItem {
+  day: string
+  title: string
+  description: string
+}
+
+interface SafariPackageExtended extends SafariPackage {
+  overview_brief?: string
+  summary_details?: SummaryDetails
+  day_images?: string[]
+  rates?: Rates
+  destination_images?: Record<string, string>
+  itinerary?: ItineraryItem[]
+}
+
+interface RoomType {
+  type: string
+  quantity: number
+  selected: boolean
+}
+
+interface BookingFormData {
+  fullName: string
+  email: string
+  phone: string
+  countryCode: string
+  country: string
+  checkIn: string
+  checkOut: string
+  roomTypes: RoomType[]
+  adults: number
+  children6to11: number
+  childrenUnder6: number
+  specialRequests: string
+  includeSafari: boolean
+  safariDescription: string
+}
+
+// Optimized image component with preconnect hints
+const OptimizedImage = ({ 
+  src, 
+  alt, 
+  className, 
+  priority = false, 
+  sizes = "100vw",
+  fill = false,
+  quality = 85
+}: { 
+  src: string; 
+  alt: string; 
+  className?: string; 
+  priority?: boolean; 
+  sizes?: string;
+  fill?: boolean;
+  quality?: number;
+}) => {
+  const [isLoaded, setIsLoaded] = useState(false)
+  
+  return (
+    <div className={`relative ${fill ? 'w-full h-full' : ''} ${className || ''}`}>
+      <Image
+        src={src}
+        alt={alt}
+        fill={fill}
+        className={`object-cover transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+        priority={priority}
+        sizes={sizes}
+        quality={quality}
+        loading={priority ? 'eager' : 'lazy'}
+        onLoad={() => setIsLoaded(true)}
+        placeholder="blur"
+        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
+      />
+    </div>
+  )
+}
+
 export default function SafariDetailsPage() {
   const params = useParams()
   const slug = params?.slug as string
@@ -63,17 +153,17 @@ export default function SafariDetailsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
+  const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'rates' | 'inclusions'>('overview')
   
-  // Fetch safari from Supabase
-  const { safari: selectedPackage, loading } = useSafari(slug)
+  const { safari: safariData, loading } = useSafari(slug)
+  const selectedPackage = safariData as SafariPackageExtended | null
   
-  // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false)
   const [lightboxImage, setLightboxImage] = useState('')
   const [lightboxTitle, setLightboxTitle] = useState('')
   
-  // Booking form state
-  const [bookingForm, setBookingForm] = useState({
+  // Booking form state with proper typing
+  const [bookingForm, setBookingForm] = useState<BookingFormData>({
     fullName: '',
     email: '',
     phone: '',
@@ -108,14 +198,16 @@ export default function SafariDetailsPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Handle loading state
+  // Fast loading - minimal delay
   useEffect(() => {
     if (!loading) {
-      setTimeout(() => setIsLoading(false), 400)
+      // Use requestAnimationFrame for immediate paint
+      requestAnimationFrame(() => {
+        setTimeout(() => setIsLoading(false), 100)
+      })
     }
   }, [loading])
 
-  // Prevent body scroll when lightbox is open
   useEffect(() => {
     if (lightboxOpen) {
       document.body.style.overflow = 'hidden'
@@ -141,39 +233,55 @@ export default function SafariDetailsPage() {
   }, [])
 
   // ============================================================
-  // FORM HANDLERS
+  // FORM HANDLERS - IMPROVED VERSION
   // ============================================================
-  const handleRoomTypeToggle = (index: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
-    if (!updatedRoomTypes[index].selected) {
-      updatedRoomTypes[index].quantity = 0
-    } else {
-      updatedRoomTypes[index].quantity = 1
-    }
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+  const handleRoomTypeToggle = useCallback((index: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          const newSelected = !room.selected
+          return {
+            ...room,
+            selected: newSelected,
+            quantity: newSelected ? 1 : 0
+          }
+        }
+        return room
+      })
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
 
-  const handleRoomTypeChange = (index: number, value: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+  const handleRoomTypeChange = useCallback((index: number, value: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          return {
+            ...room,
+            quantity: Math.max(0, Math.min(10, value))
+          }
+        }
+        return room
+      })
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
+    
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
-      setBookingForm({ ...bookingForm, [name]: checked })
+      setBookingForm(prev => ({ ...prev, [name]: checked }))
     } else {
-      setBookingForm({ ...bookingForm, [name]: value })
+      setBookingForm(prev => ({ ...prev, [name]: value }))
     }
-  }
+  }, [])
 
   // ============================================================
   // HANDLE SUBMIT
   // ============================================================
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
     const selectedRooms = bookingForm.roomTypes.filter(r => r.selected === true && r.quantity > 0)
@@ -208,6 +316,7 @@ export default function SafariDetailsPage() {
       alert('Thank you! Your booking request has been submitted. We will contact you within 12 hours.')
       setModalOpen(false)
       
+      // Reset form
       setBookingForm({
         fullName: '',
         email: '',
@@ -236,75 +345,90 @@ export default function SafariDetailsPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [bookingForm, selectedPackage])
 
   // ============================================================
-  // LOADING SCREEN WITH ANIMATED LOGO
+  // HELPER FUNCTIONS - Memoized
+  // ============================================================
+  const getDayImage = useCallback((index: number) => {
+    if (selectedPackage?.day_images && selectedPackage.day_images[index]) {
+      return selectedPackage.day_images[index]
+    }
+    return selectedPackage?.image || 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp'
+  }, [selectedPackage])
+
+  const getDestinationImage = useCallback((destination: string) => {
+    if (selectedPackage?.destination_images) {
+      if (selectedPackage.destination_images[destination]) {
+        return selectedPackage.destination_images[destination]
+      }
+      const keys = Object.keys(selectedPackage.destination_images)
+      for (const key of keys) {
+        if (destination.toLowerCase().includes(key.toLowerCase()) || 
+            key.toLowerCase().includes(destination.toLowerCase())) {
+          return selectedPackage.destination_images[key]
+        }
+      }
+    }
+    return selectedPackage?.image || 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp'
+  }, [selectedPackage])
+
+  const getRatesList = useCallback(() => {
+    if (selectedPackage?.rates) {
+      return Object.entries(selectedPackage.rates)
+        .map(([persons, price]) => ({
+          persons: parseInt(persons),
+          price
+        }))
+        .sort((a, b) => a.persons - b.persons)
+    }
+    return [
+      { persons: 2, price: '$2,355' },
+      { persons: 3, price: '$2,100' },
+      { persons: 4, price: '$1,970' },
+      { persons: 5, price: '$1,895' },
+      { persons: 6, price: '$1,840' },
+      { persons: 7, price: '$1,805' }
+    ]
+  }, [selectedPackage])
+
+  const getSummaryDetails = useCallback(() => {
+    const summary = selectedPackage?.summary_details || {}
+    return {
+      duration: summary.duration || selectedPackage?.duration || '3 Days / 2 Nights',
+      destinations: summary.destinations || selectedPackage?.highlights?.slice(0, 4) || [],
+      accommodation: summary.accommodation || selectedPackage?.accommodation || 'Luxury safari lodges and camps',
+      group_size: summary.group_size || selectedPackage?.group_size || '2-7 guests',
+      best_time: summary.best_time || selectedPackage?.best_time || 'Year-round'
+    }
+  }, [selectedPackage])
+
+  // ============================================================
+  // LOADING SCREEN
   // ============================================================
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-[#1A1510] flex flex-col items-center justify-center z-[9999]">
         <div className="absolute inset-0 bg-gold/5 blur-3xl rounded-full"></div>
-        
         <div className="relative">
           <img 
             src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" 
             alt="Pori Pori Serengeti" 
-            className="w-24 h-24 md:w-32 md:h-32 object-contain animate-[logoPulse_2s_ease-in-out_infinite]"
+            className="w-20 h-20 md:w-28 md:h-28 object-contain"
             style={{
               filter: 'drop-shadow(0 0 40px rgba(196, 165, 110, 0.2))'
             }}
           />
         </div>
-        
-        <div className="mt-8 text-center">
-          <p className="text-white/60 text-sm tracking-[0.3em] uppercase font-light animate-[fadeInUp_0.8s_ease-out]">
-            Loading Safari Details
-            <span className="inline-flex">
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite] ml-1" style={{ animationDelay: '0s' }}>.</span>
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.2s' }}>.</span>
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.4s' }}>.</span>
-            </span>
+        <div className="mt-6 text-center">
+          <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-light">
+            Loading Safari
           </p>
         </div>
-
-        <style jsx>{`
-          @keyframes logoPulse {
-            0%, 100% { 
-              transform: scale(1); 
-              opacity: 0.9;
-            }
-            50% { 
-              transform: scale(1.08); 
-              opacity: 1;
-            }
-          }
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          @keyframes bounce {
-            0%, 80%, 100% { 
-              transform: translateY(0);
-              opacity: 0.3;
-            }
-            40% { 
-              transform: translateY(-6px);
-              opacity: 1;
-            }
-          }
-        `}</style>
       </div>
     )
   }
 
-  // Not found state
   if (!selectedPackage) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -318,9 +442,14 @@ export default function SafariDetailsPage() {
     )
   }
 
-  // ============================================================
-  // RENDER
-  // ============================================================
+  const fullDescription = selectedPackage.full_description || selectedPackage.description
+  const overviewBrief = selectedPackage.overview_brief || fullDescription.split(/[.!?]+/).slice(0, 2).join('. ')
+  const summary = getSummaryDetails()
+  const ratesList = getRatesList()
+  const itinerary = selectedPackage.itinerary || []
+
+  const ctaBgImage = selectedPackage.image || 'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp'
+
   return (
     <>
       {/* ============================================================
@@ -418,10 +547,16 @@ export default function SafariDetailsPage() {
       ============================================================ */}
       <section className="relative h-[50vh] min-h-[400px] overflow-hidden bg-dark">
         <div className="absolute inset-0">
-          <img
+          <Image
             src={selectedPackage.image}
             alt={selectedPackage.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+            quality={90}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
@@ -444,6 +579,29 @@ export default function SafariDetailsPage() {
       </section>
 
       {/* ============================================================
+      TABS NAVIGATION
+      ============================================================ */}
+      <div className="bg-white border-b border-[#E0D5C8] sticky top-[73px] z-40 shadow-sm">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex overflow-x-auto scrollbar-hide">
+            {(['overview', 'itinerary', 'rates', 'inclusions'] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-4 md:px-6 py-3 md:py-4 text-[0.55rem] md:text-[0.65rem] tracking-[3px] uppercase font-sans whitespace-nowrap transition-all duration-300 border-b-2 ${
+                  activeTab === tab
+                    ? 'border-[#C4A56E] text-[#2C2418]'
+                    : 'border-transparent text-[#8B7A64] hover:text-[#2C2418] hover:border-[#D4C5B5]'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ============================================================
       DETAILS SECTION
       ============================================================ */}
       <section className="py-12 md:py-16 lg:py-20 bg-[#FBF8F4]">
@@ -451,83 +609,225 @@ export default function SafariDetailsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
-              <div>
-                <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-4">
-                  Safari Overview
-                </h2>
-                <p className="text-taupe text-sm md:text-base font-light leading-relaxed whitespace-pre-line">
-                  {(selectedPackage as any).full_description || selectedPackage.description}
-                </p>
-              </div>
+              {/* Overview Tab */}
+              {activeTab === 'overview' && (
+                <div className="animate-[fadeIn_0.3s_ease] space-y-6">
+                  <div>
+                    <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-3">
+                      Overview
+                    </h2>
+                    <p className="text-taupe text-sm md:text-base font-light leading-relaxed">
+                      {overviewBrief}
+                    </p>
+                  </div>
 
-              {/* Itinerary */}
-              {selectedPackage.itinerary && selectedPackage.itinerary.length > 0 && (
-                <div>
+                  <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)] shadow-sm">
+                    <h3 className="font-serif text-xl font-medium text-charcoal mb-4 flex items-center gap-2">
+                      <i className="fas fa-info-circle text-gold"></i>
+                      Safari Summary
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold text-sm">
+                          <i className="fas fa-clock"></i>
+                        </div>
+                        <div>
+                          <p className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] font-medium">Duration</p>
+                          <p className="text-sm text-charcoal">{summary.duration}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold text-sm">
+                          <i className="fas fa-location-dot"></i>
+                        </div>
+                        <div>
+                          <p className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] font-medium">Destinations</p>
+                          <div className="flex flex-wrap gap-2 mt-1">
+                            {summary.destinations.map((dest: string, i: number) => (
+                              <span key={i} className="text-xs bg-[#FBF8F4] px-2 py-0.5 rounded-full border border-[#E0D5C8] text-taupe">
+                                {dest}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold text-sm">
+                          <i className="fas fa-bed"></i>
+                        </div>
+                        <div>
+                          <p className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] font-medium">Accommodation</p>
+                          <p className="text-sm text-charcoal">{summary.accommodation}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold text-sm">
+                          <i className="fas fa-users"></i>
+                        </div>
+                        <div>
+                          <p className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] font-medium">Group Size</p>
+                          <p className="text-sm text-charcoal">{summary.group_size}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center text-gold text-sm">
+                          <i className="fas fa-calendar-alt"></i>
+                        </div>
+                        <div>
+                          <p className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] font-medium">Best Time</p>
+                          <p className="text-sm text-charcoal">{summary.best_time}</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-4 border-t border-[#F3EDE4]">
+                      <p className="text-xs text-[#8B7A64] font-light leading-relaxed">
+                        <i className="fas fa-star text-gold mr-1"></i>
+                        {fullDescription.split(/[.!?]+/).slice(0, 3).join('. ')}.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Itinerary Tab */}
+              {activeTab === 'itinerary' && itinerary.length > 0 && (
+                <div className="animate-[fadeIn_0.3s_ease]">
                   <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-4">
                     Itinerary
                   </h2>
-                  <div className="space-y-4">
-                    {selectedPackage.itinerary.map((item: any, idx: number) => (
-                      <div key={idx} className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)] hover:shadow-md transition-shadow">
-                        <div className="flex items-start gap-4">
-                          <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center text-gold font-serif text-sm font-medium">
-                            {item.day}
+                  <div className="space-y-6">
+                    {itinerary.map((item: ItineraryItem, idx: number) => {
+                      const dayImage = getDayImage(idx)
+                      return (
+                        <div key={idx} className="bg-white rounded-xl overflow-hidden border border-[rgba(196,165,110,0.15)] hover:shadow-md transition-shadow">
+                          <div className="relative h-48 md:h-56 overflow-hidden">
+                            <Image
+                              src={dayImage}
+                              alt={`${item.title} - ${selectedPackage.title}`}
+                              fill
+                              className="object-cover"
+                              loading="lazy"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              quality={80}
+                              placeholder="blur"
+                              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute bottom-4 left-4 flex items-center gap-3">
+                              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gold/90 flex items-center justify-center text-white font-serif text-sm font-medium shadow-lg">
+                                {item.day}
+                              </div>
+                              <h3 className="text-white font-serif text-xl font-light drop-shadow-lg">
+                                {item.title}
+                              </h3>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-serif text-lg font-medium text-charcoal mb-1">
-                              {item.title}
-                            </h3>
+                          <div className="p-6">
                             <p className="text-taupe text-sm font-light leading-relaxed">
                               {item.description}
                             </p>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Gallery with Lightbox */}
-              {selectedPackage.images && selectedPackage.images.length > 0 && (
-                <div>
+              {activeTab === 'itinerary' && itinerary.length === 0 && (
+                <div className="animate-[fadeIn_0.3s_ease] text-center py-12">
+                  <p className="text-taupe font-light">No itinerary details available for this safari.</p>
+                </div>
+              )}
+
+              {/* Rates Tab */}
+              {activeTab === 'rates' && (
+                <div className="animate-[fadeIn_0.3s_ease]">
                   <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-4">
-                    Gallery
+                    Safari Rates
                   </h2>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    {selectedPackage.images.map((img: any, idx: number) => (
-                      <div 
-                        key={idx} 
-                        className="aspect-[4/3] overflow-hidden bg-sand cursor-pointer relative group"
-                        onClick={() => openLightbox(img.src, img.alt)}
-                      >
-                        <img
-                          src={img.src}
-                          alt={img.alt}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <i className="fas fa-expand"></i>
+                  <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
+                    <p className="text-taupe text-sm font-light leading-relaxed mb-4">
+                      Rates are per person and include all listed services. Prices are in USD.
+                    </p>
+                    <div className="space-y-3">
+                      {ratesList.map((rate) => (
+                        <div key={rate.persons} className="flex justify-between items-center py-2 border-b border-[#F3EDE4] last:border-0">
+                          <span className="text-charcoal font-medium">{rate.persons} {rate.persons === 1 ? 'person' : 'persons'}</span>
+                          <span className="text-gold font-serif text-lg">{rate.price}</span>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <p className="text-white text-xs font-light tracking-wide truncate">{img.alt}</p>
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <div className="mt-4 p-4 bg-[#FBF8F4] rounded-lg border border-[#E0D5C8]">
+                      <p className="text-xs text-taupe font-light">
+                        <i className="fas fa-info-circle text-gold mr-2"></i>
+                        Rates are subject to availability and may change during peak season.
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-center text-taupe text-xs font-light mt-3">
-                    Click any image to view larger
-                  </p>
+                </div>
+              )}
+
+              {/* Inclusions Tab */}
+              {activeTab === 'inclusions' && (
+                <div className="animate-[fadeIn_0.3s_ease] space-y-6">
+                  <div>
+                    <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-4">
+                      What's Included
+                    </h2>
+                    {selectedPackage.includes && selectedPackage.includes.length > 0 ? (
+                      <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
+                        <ul className="space-y-3">
+                          {selectedPackage.includes.map((item: string, idx: number) => (
+                            <li key={idx} className="flex items-start gap-3 text-taupe text-sm font-light">
+                              <i className="fas fa-check text-gold text-xs mt-1 flex-shrink-0"></i>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ) : (
+                      <p className="text-taupe font-light">No inclusions listed for this safari.</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <h2 className="font-serif text-2xl md:text-3xl font-normal text-charcoal mb-4">
+                      What's Not Included
+                    </h2>
+                    <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
+                      <ul className="space-y-3">
+                        <li className="flex items-start gap-3 text-taupe text-sm font-light">
+                          <i className="fas fa-times text-red-400 text-xs mt-1 flex-shrink-0"></i>
+                          International flights and visa fees
+                        </li>
+                        <li className="flex items-start gap-3 text-taupe text-sm font-light">
+                          <i className="fas fa-times text-red-400 text-xs mt-1 flex-shrink-0"></i>
+                          Personal Travel/Baggage Insurance
+                        </li>
+                        <li className="flex items-start gap-3 text-taupe text-sm font-light">
+                          <i className="fas fa-times text-red-400 text-xs mt-1 flex-shrink-0"></i>
+                          Tips for the driver guide and any porters at the lodges
+                        </li>
+                        <li className="flex items-start gap-3 text-taupe text-sm font-light">
+                          <i className="fas fa-times text-red-400 text-xs mt-1 flex-shrink-0"></i>
+                          Bank Fee/charges in sending your money to Tanzania and getting USD cash out in Tanzania
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Sidebar - Sticky */}
+            {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="space-y-6 sticky top-24">
-                {/* Quick Info */}
                 <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
                   <h3 className="font-serif text-xl font-medium text-charcoal mb-4">
                     Quick Info
@@ -548,32 +848,26 @@ export default function SafariDetailsPage() {
                       <p className="text-charcoal text-lg font-serif">{selectedPackage.price}</p>
                     </div>
                     
-                    {(selectedPackage as any).best_time && (
-                      <div>
-                        <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
-                          Best Time
-                        </p>
-                        <p className="text-taupe text-sm font-light">{(selectedPackage as any).best_time}</p>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
+                        Best Time
+                      </p>
+                      <p className="text-taupe text-sm font-light">{summary.best_time}</p>
+                    </div>
                     
-                    {(selectedPackage as any).group_size && (
-                      <div>
-                        <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
-                          Group Size
-                        </p>
-                        <p className="text-taupe text-sm font-light">{(selectedPackage as any).group_size}</p>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
+                        Group Size
+                      </p>
+                      <p className="text-taupe text-sm font-light">{summary.group_size}</p>
+                    </div>
                     
-                    {selectedPackage.accommodation && (
-                      <div>
-                        <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
-                          Accommodation
-                        </p>
-                        <p className="text-taupe text-sm font-light">{selectedPackage.accommodation}</p>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-[0.55rem] tracking-[2px] uppercase text-gold font-medium mb-1">
+                        Accommodation
+                      </p>
+                      <p className="text-taupe text-sm font-light">{summary.accommodation}</p>
+                    </div>
                   </div>
 
                   <div className="mt-6 pt-6 border-t border-[rgba(196,165,110,0.15)]">
@@ -592,23 +886,6 @@ export default function SafariDetailsPage() {
                   </div>
                 </div>
 
-                {/* Includes */}
-                {selectedPackage.includes && selectedPackage.includes.length > 0 && (
-                  <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
-                    <h3 className="font-serif text-lg font-medium text-charcoal mb-3">
-                      What's Included
-                    </h3>
-                    <ul className="space-y-2">
-                      {selectedPackage.includes.map((item: string, idx: number) => (
-                        <li key={idx} className="flex items-start gap-2 text-taupe text-sm font-light">
-                          <i className="fas fa-check text-gold text-xs mt-1 flex-shrink-0"></i>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
                 {/* Highlights */}
                 <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
                   <h3 className="font-serif text-lg font-medium text-charcoal mb-3">
@@ -622,6 +899,35 @@ export default function SafariDetailsPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Destination Images */}
+                {selectedPackage.destination_images && Object.keys(selectedPackage.destination_images).length > 0 && (
+                  <div className="bg-white rounded-xl p-6 border border-[rgba(196,165,110,0.15)]">
+                    <h3 className="font-serif text-lg font-medium text-charcoal mb-3">
+                      Destinations
+                    </h3>
+                    <div className="space-y-3">
+                      {Object.entries(selectedPackage.destination_images).map(([name, url], idx) => (
+                        <div key={idx} className="flex items-center gap-3 group cursor-pointer" onClick={() => openLightbox(url, name)}>
+                          <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                            <Image
+                              src={url}
+                              alt={name}
+                              fill
+                              className="object-cover"
+                              loading="lazy"
+                              sizes="48px"
+                              quality={70}
+                            />
+                          </div>
+                          <span className="text-sm text-taupe group-hover:text-[#2C2418] transition-colors font-light">
+                            {name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -629,21 +935,38 @@ export default function SafariDetailsPage() {
       </section>
 
       {/* ============================================================
-      CTA SECTION
+      CTA SECTION - With Full Background Image
       ============================================================ */}
-      <div className="mx-4 md:mx-[5%] py-8 md:py-12 lg:py-16 px-4 md:px-8 text-center bg-gradient-to-br from-dark to-[#2C2418] text-white my-6 md:my-8 lg:my-12">
-        <h2 className="font-serif text-[clamp(1.8rem,5vw,3rem)] font-light mb-3">
-          Ready for Your {selectedPackage.title}?
-        </h2>
-        <p className="text-white/60 mb-4 text-sm md:text-base">
-          Let our safari experts help you customize this package to your preferences
-        </p>
-        <button 
-          onClick={() => setModalOpen(true)}
-          className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg"
-        >
-          Inquire About This Safari
-        </button>
+      <div className="relative mx-4 md:mx-[5%] py-8 md:py-12 lg:py-16 px-4 md:px-8 text-center overflow-hidden my-6 md:my-8 lg:my-12 min-h-[300px] md:min-h-[350px] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image
+            src={ctaBgImage}
+            alt={`Book ${selectedPackage.title}`}
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 90vw"
+            quality={90}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h2 className="font-serif text-[clamp(1.8rem,5vw,3rem)] font-light text-white mb-3 drop-shadow-lg">
+            Ready for Your <span className="text-gold-light">{selectedPackage.title}</span>?
+          </h2>
+          <p className="text-white/80 max-w-2xl mx-auto mb-6 text-sm md:text-base font-light leading-relaxed drop-shadow-md">
+            Let our safari experts help you customize this package to your preferences
+          </p>
+          <button 
+            onClick={() => setModalOpen(true)}
+            className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg"
+          >
+            Inquire About This Safari
+          </button>
+        </div>
       </div>
 
       {/* ============================================================
@@ -677,7 +1000,7 @@ export default function SafariDetailsPage() {
       )}
 
       {/* ============================================================
-      BOOKING MODAL - FIXED WITH NATIVE CHECKBOXES
+      BOOKING MODAL - IMPROVED VERSION
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto">
@@ -695,7 +1018,6 @@ export default function SafariDetailsPage() {
             </div>
 
             <form className="p-6" onSubmit={handleSubmit}>
-              {/* Safari Name (Read-only) */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Safari Package</label>
                 <div className="w-full p-2.5 border border-[#E0D5C8] bg-[#FBF8F4] font-sans text-sm text-[#2C2418] font-medium">
@@ -729,7 +1051,6 @@ export default function SafariDetailsPage() {
                 />
               </div>
 
-              {/* Phone Number with Country Code */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Phone Number *</label>
                 <div className="flex gap-2">
@@ -761,7 +1082,6 @@ export default function SafariDetailsPage() {
                 </p>
               </div>
 
-              {/* Country Selection */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-1">Country *</label>
                 <select
@@ -805,11 +1125,9 @@ export default function SafariDetailsPage() {
                 </div>
               </div>
 
-              {/* Guest Details - Improved Layout */}
               <div className="mb-4 bg-[#FBF8F4] p-4 rounded border border-[#E0D5C8]">
                 <p className="text-[0.55rem] tracking-[3px] uppercase text-[#8B7A64] mb-3 font-medium">Guest Details</p>
                 
-                {/* Adults */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-sm font-medium text-[#2C2418]">Adults</label>
@@ -825,7 +1143,6 @@ export default function SafariDetailsPage() {
                   </select>
                 </div>
 
-                {/* Children */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-sm font-medium text-[#2C2418]">Children</label>
@@ -841,7 +1158,6 @@ export default function SafariDetailsPage() {
                   </select>
                 </div>
 
-                {/* Infants */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="text-sm font-medium text-[#2C2418]">Infants</label>
@@ -858,34 +1174,46 @@ export default function SafariDetailsPage() {
                 </div>
               </div>
 
-              {/* Room Types - NATIVE CHECKBOXES (same as Cuisines page) */}
+              {/* ============================================================
+              ROOM SELECTION - IMPROVED VERSION
+              ============================================================ */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
                 <div className="space-y-3">
                   {bookingForm.roomTypes.map((room, index) => (
-                    <div key={index} className="bg-[#FFFDF9] border border-[#E0D5C8] p-3 rounded transition-all duration-200 hover:border-[#C4A56E]">
-                      <div className="flex items-center gap-3">
+                    <div 
+                      key={index} 
+                      className={`bg-[#FFFDF9] border p-3 rounded transition-all duration-200 ${
+                        room.selected 
+                          ? 'border-[#C4A56E] shadow-sm bg-[#FBF8F4]' 
+                          : 'border-[#E0D5C8] hover:border-[#C4A56E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
                         <input
                           type="checkbox"
                           checked={room.selected}
                           onChange={() => handleRoomTypeToggle(index)}
-                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer"
+                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer shrink-0"
                           id={`room-${index}`}
                         />
-                        <label htmlFor={`room-${index}`} className="text-sm text-[#2C2418] flex-1 cursor-pointer">
+                        <label 
+                          htmlFor={`room-${index}`} 
+                          className="text-sm text-[#2C2418] flex-1 cursor-pointer min-w-[100px]"
+                        >
                           {room.type}
                         </label>
                         {room.selected && (
-                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease]">
-                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64]">Qty:</label>
+                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease] ml-auto bg-white px-2 py-1 rounded border border-[#E0D5C8]">
+                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] shrink-0">Qty:</label>
                             <input
                               type="number"
                               min="1"
                               max="10"
                               value={room.quantity || 1}
                               onChange={(e) => handleRoomTypeChange(index, parseInt(e.target.value) || 1)}
-                              className="w-16 p-1.5 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors"
+                              className="w-16 p-1 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors rounded"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </div>
@@ -894,6 +1222,9 @@ export default function SafariDetailsPage() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-[#8B7A64] mt-2 font-light">
+                  <span className="text-[#C4A56E]">●</span> Selected rooms will be highlighted with gold border
+                </p>
               </div>
 
               <div className="mb-4">
@@ -973,6 +1304,13 @@ export default function SafariDetailsPage() {
         @keyframes zoomIn {
           from { transform: scale(0.95); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </>

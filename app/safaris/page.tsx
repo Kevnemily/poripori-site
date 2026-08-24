@@ -1,9 +1,29 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useSafaris } from '@/hooks/useData'
+
+interface RoomType {
+  type: string
+  quantity: number
+  selected: boolean
+}
+
+interface BookingFormData {
+  fullName: string
+  email: string
+  checkIn: string
+  checkOut: string
+  roomTypes: RoomType[]
+  adults: number
+  children6to11: number
+  childrenUnder6: number
+  specialRequests: string
+  includeSafari: boolean
+  safariDescription: string
+}
 
 export default function SafarisPage() {
   const [scrolled, setScrolled] = useState(false)
@@ -13,11 +33,10 @@ export default function SafarisPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   
-  // Fetch safaris from Supabase
   const { safaris: safariPackages, loading } = useSafaris()
   
-  // Booking form state
-  const [bookingForm, setBookingForm] = useState({
+  // Booking form state with proper typing
+  const [bookingForm, setBookingForm] = useState<BookingFormData>({
     fullName: '',
     email: '',
     checkIn: '',
@@ -49,39 +68,53 @@ export default function SafarisPage() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Handle loading state
+  // Fast loading - minimal delay
   useEffect(() => {
     if (!loading) {
-      setTimeout(() => setIsLoading(false), 400)
+      requestAnimationFrame(() => {
+        setTimeout(() => setIsLoading(false), 100)
+      })
     }
   }, [loading])
 
   // ============================================================
-  // FORM HANDLERS - Optimized with useCallback
+  // FORM HANDLERS - IMPROVED VERSION
   // ============================================================
   const handleRoomTypeToggle = useCallback((index: number) => {
     setBookingForm(prev => {
-      const updatedRoomTypes = [...prev.roomTypes]
-      updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
-      if (!updatedRoomTypes[index].selected) {
-        updatedRoomTypes[index].quantity = 0
-      } else {
-        updatedRoomTypes[index].quantity = 1
-      }
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          const newSelected = !room.selected
+          return {
+            ...room,
+            selected: newSelected,
+            quantity: newSelected ? 1 : 0
+          }
+        }
+        return room
+      })
       return { ...prev, roomTypes: updatedRoomTypes }
     })
   }, [])
 
   const handleRoomTypeChange = useCallback((index: number, value: number) => {
     setBookingForm(prev => {
-      const updatedRoomTypes = [...prev.roomTypes]
-      updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          return {
+            ...room,
+            quantity: Math.max(0, Math.min(10, value))
+          }
+        }
+        return room
+      })
       return { ...prev, roomTypes: updatedRoomTypes }
     })
   }, [])
 
   const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
+    
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
       setBookingForm(prev => ({ ...prev, [name]: checked }))
@@ -91,7 +124,7 @@ export default function SafarisPage() {
   }, [])
 
   // ============================================================
-  // HANDLE SUBMIT - UPDATED WITH formType
+  // HANDLE SUBMIT
   // ============================================================
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -127,6 +160,7 @@ export default function SafarisPage() {
       alert('Thank you! Your booking request has been submitted. We will contact you within 12 hours.')
       setModalOpen(false)
       
+      // Reset form
       setBookingForm({
         fullName: '',
         email: '',
@@ -155,67 +189,27 @@ export default function SafarisPage() {
   }, [bookingForm])
 
   // ============================================================
-  // LOADING SCREEN WITH ANIMATED LOGO
+  // LOADING SCREEN
   // ============================================================
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-[#1A1510] flex flex-col items-center justify-center z-[9999]">
         <div className="absolute inset-0 bg-gold/5 blur-3xl rounded-full"></div>
-        
         <div className="relative">
           <img 
             src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/logo.webp" 
             alt="Pori Pori Serengeti" 
-            className="w-24 h-24 md:w-32 md:h-32 object-contain animate-[logoPulse_2s_ease-in-out_infinite]"
+            className="w-20 h-20 md:w-28 md:h-28 object-contain"
             style={{
               filter: 'drop-shadow(0 0 40px rgba(196, 165, 110, 0.2))'
             }}
           />
         </div>
-        
-        <div className="mt-8 text-center">
-          <p className="text-white/60 text-sm tracking-[0.3em] uppercase font-light animate-[fadeInUp_0.8s_ease-out]">
+        <div className="mt-6 text-center">
+          <p className="text-white/60 text-xs tracking-[0.3em] uppercase font-light">
             Loading Safaris
-            <span className="inline-flex">
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite] ml-1" style={{ animationDelay: '0s' }}>.</span>
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.2s' }}>.</span>
-              <span className="animate-[bounce_1.4s_ease-in-out_infinite]" style={{ animationDelay: '0.4s' }}>.</span>
-            </span>
           </p>
         </div>
-
-        <style jsx>{`
-          @keyframes logoPulse {
-            0%, 100% { 
-              transform: scale(1); 
-              opacity: 0.9;
-            }
-            50% { 
-              transform: scale(1.08); 
-              opacity: 1;
-            }
-          }
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          @keyframes bounce {
-            0%, 80%, 100% { 
-              transform: translateY(0);
-              opacity: 0.3;
-            }
-            40% { 
-              transform: translateY(-6px);
-              opacity: 1;
-            }
-          }
-        `}</style>
       </div>
     )
   }
@@ -316,14 +310,18 @@ export default function SafarisPage() {
       </div>
 
       {/* ============================================================
-      PAGE HEADER
+      PAGE HEADER - Optimized with Next.js Image
       ============================================================ */}
       <section className="relative h-[35vh] min-h-[250px] overflow-hidden bg-dark">
         <div className="absolute inset-0">
-          <img
+          <Image
             src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp"
             alt="Pori Pori Serengeti Safari Packages"
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+            quality={90}
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
@@ -365,16 +363,14 @@ export default function SafarisPage() {
                 className="group bg-white rounded-xl shadow-sm overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:shadow-xl border border-[rgba(196,165,110,0.1)] no-underline cursor-pointer block"
               >
                 <div className="relative h-[200px] overflow-hidden">
-                  <img
+                  <Image
                     src={pkg.image}
                     alt={`${pkg.title} - Pori Pori Serengeti`}
-                    className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-105"
+                    fill
+                    className="object-cover transition-transform duration-600 group-hover:scale-105"
                     loading="lazy"
-                    width="600"
-                    height="400"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://placehold.co/600x400/1e293b/fcd34d?text=Pori+Pori'
-                    }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    quality={80}
                   />
                   <div className="absolute top-3 right-3 bg-[#1A1510]/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-light tracking-wide">
                     {pkg.price}
@@ -469,21 +465,40 @@ export default function SafarisPage() {
       </section>
 
       {/* ============================================================
-      CTA SECTION
+      CTA SECTION - With Background Image
       ============================================================ */}
-      <div className="mx-4 md:mx-[5%] py-8 md:py-12 px-4 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-6 md:my-8">
-        <h2 className="font-serif text-[clamp(1.5rem,4vw,2.5rem)] font-light mb-3">Ready for Your Safari Adventure?</h2>
-        <p className="text-white/60 mb-4 text-sm">Let us help you choose the perfect safari package for your dreams</p>
-        <button 
-          onClick={() => setModalOpen(true)}
-          className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg"
-        >
-          Contact Our Safari Experts
-        </button>
+      <div className="relative mx-4 md:mx-[5%] py-12 md:py-16 lg:py-20 px-4 md:px-8 text-center overflow-hidden my-6 md:my-8 lg:my-12 min-h-[300px] md:min-h-[350px] flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image
+            src="https://res.cloudinary.com/dp7piqlbe/image/upload/v1786826166/zebra.webp"
+            alt="Book Your Safari Adventure"
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 90vw"
+            quality={90}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
+        
+        <div className="relative z-10 max-w-4xl mx-auto">
+          <h2 className="font-serif text-[clamp(1.5rem,4vw,2.5rem)] font-light text-white mb-3 drop-shadow-lg">
+            Ready for Your Safari Adventure?
+          </h2>
+          <p className="text-white/80 max-w-2xl mx-auto mb-6 text-sm md:text-base font-light leading-relaxed drop-shadow-md">
+            Let us help you choose the perfect safari package for your dreams
+          </p>
+          <button 
+            onClick={() => setModalOpen(true)}
+            className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[4px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg"
+          >
+            Contact Our Safari Experts
+          </button>
+        </div>
       </div>
 
       {/* ============================================================
-      BOOKING MODAL
+      BOOKING MODAL - IMPROVED VERSION
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto">
@@ -596,33 +611,46 @@ export default function SafarisPage() {
                 </div>
               </div>
 
+              {/* ============================================================
+              ROOM SELECTION - IMPROVED VERSION
+              ============================================================ */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
                 <div className="space-y-3">
                   {bookingForm.roomTypes.map((room, index) => (
-                    <div key={index} className="bg-[#FFFDF9] border border-[#E0D5C8] p-3 rounded transition-all duration-200 hover:border-[#C4A56E]">
-                      <div className="flex items-center gap-3">
+                    <div 
+                      key={index} 
+                      className={`bg-[#FFFDF9] border p-3 rounded transition-all duration-200 ${
+                        room.selected 
+                          ? 'border-[#C4A56E] shadow-sm bg-[#FBF8F4]' 
+                          : 'border-[#E0D5C8] hover:border-[#C4A56E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
                         <input
                           type="checkbox"
                           checked={room.selected}
                           onChange={() => handleRoomTypeToggle(index)}
-                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer"
+                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer shrink-0"
                           id={`room-${index}`}
                         />
-                        <label htmlFor={`room-${index}`} className="text-sm text-[#2C2418] flex-1 cursor-pointer">
+                        <label 
+                          htmlFor={`room-${index}`} 
+                          className="text-sm text-[#2C2418] flex-1 cursor-pointer min-w-[100px]"
+                        >
                           {room.type}
                         </label>
                         {room.selected && (
-                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease]">
-                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64]">Qty:</label>
+                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease] ml-auto bg-white px-2 py-1 rounded border border-[#E0D5C8]">
+                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] shrink-0">Qty:</label>
                             <input
                               type="number"
                               min="1"
                               max="10"
                               value={room.quantity || 1}
                               onChange={(e) => handleRoomTypeChange(index, parseInt(e.target.value) || 1)}
-                              className="w-16 p-1.5 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors"
+                              className="w-16 p-1 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors rounded"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </div>
@@ -631,6 +659,9 @@ export default function SafarisPage() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-[#8B7A64] mt-2 font-light">
+                  <span className="text-[#C4A56E]">●</span> Selected rooms will be highlighted with gold border
+                </p>
               </div>
 
               <div className="mb-4">

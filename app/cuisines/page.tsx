@@ -1,8 +1,28 @@
 ﻿'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+
+interface RoomType {
+  type: string
+  quantity: number
+  selected: boolean
+}
+
+interface BookingFormData {
+  fullName: string
+  email: string
+  checkIn: string
+  checkOut: string
+  roomTypes: RoomType[]
+  adults: number
+  children6to11: number
+  childrenUnder6: number
+  specialRequests: string
+  includeSafari: boolean
+  safariDescription: string
+}
 
 export default function Cuisines() {
   const [currentSlide, setCurrentSlide] = useState(0)
@@ -14,8 +34,8 @@ export default function Cuisines() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   
-  // Booking form state
-  const [bookingForm, setBookingForm] = useState({
+  // Booking form state with proper typing
+  const [bookingForm, setBookingForm] = useState<BookingFormData>({
     fullName: '',
     email: '',
     checkIn: '',
@@ -36,19 +56,19 @@ export default function Cuisines() {
   })
 
   // ============================================================
-  // HERO IMAGES
+  // HERO IMAGES - Memoized
   // ============================================================
-  const heroImages = [
+  const heroImages = useMemo(() => [
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/food11.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/food18.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/food21.webp',
     'https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bar3.webp'
-  ]
+  ], [])
 
   // ============================================================
-  // SIGNATURE EXPERIENCES
+  // SIGNATURE EXPERIENCES - Memoized
   // ============================================================
-  const signatureExperiences = [
+  const signatureExperiences = useMemo(() => [
     {
       title: 'Bush Breakfast',
       description: 'Start your day with a gourmet breakfast overlooking the endless plains. Fresh pastries, seasonal fruits, and made-to-order eggs served hot in the wilderness.',
@@ -70,12 +90,12 @@ export default function Cuisines() {
       tag: 'Private Dining Available',
       tagIcon: 'fa-star'
     }
-  ]
+  ], [])
 
   // ============================================================
-  // ADDITIONAL EXPERIENCES
+  // ADDITIONAL EXPERIENCES - Memoized
   // ============================================================
-  const additionalExperiences = [
+  const additionalExperiences = useMemo(() => [
     {
       title: 'Private Picnic Safari',
       description: 'Enjoy a gourmet picnic lunch at a secluded spot during your game drive — complete with a table set up in the middle of the savannah.',
@@ -97,7 +117,7 @@ export default function Cuisines() {
       tag: 'Available on Request',
       tagIcon: 'fa-chalkboard-user'
     }
-  ]
+  ], [])
 
   // ============================================================
   // EFFECTS
@@ -107,7 +127,7 @@ export default function Cuisines() {
       setScrolled(window.scrollY > 50)
       setShowWhatsApp(window.scrollY > 300)
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -121,51 +141,67 @@ export default function Cuisines() {
   // ============================================================
   // LIGHTBOX FUNCTIONS
   // ============================================================
-  const openLightbox = (imageUrl: string) => {
+  const openLightbox = useCallback((imageUrl: string) => {
     setLightboxImage(imageUrl)
     setLightboxOpen(true)
     document.body.style.overflow = 'hidden'
-  }
+  }, [])
 
-  const closeLightbox = () => {
+  const closeLightbox = useCallback(() => {
     setLightboxOpen(false)
     document.body.style.overflow = ''
-  }
+  }, [])
 
   // ============================================================
-  // FORM HANDLERS
+  // FORM HANDLERS - IMPROVED VERSION
   // ============================================================
-  const handleRoomTypeToggle = (index: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    updatedRoomTypes[index].selected = !updatedRoomTypes[index].selected
-    if (!updatedRoomTypes[index].selected) {
-      updatedRoomTypes[index].quantity = 0
-    } else {
-      updatedRoomTypes[index].quantity = 1
-    }
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+  const handleRoomTypeToggle = useCallback((index: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          const newSelected = !room.selected
+          return {
+            ...room,
+            selected: newSelected,
+            quantity: newSelected ? 1 : 0
+          }
+        }
+        return room
+      })
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
 
-  const handleRoomTypeChange = (index: number, value: number) => {
-    const updatedRoomTypes = [...bookingForm.roomTypes]
-    updatedRoomTypes[index].quantity = Math.max(0, Math.min(10, value))
-    setBookingForm({ ...bookingForm, roomTypes: updatedRoomTypes })
-  }
+  const handleRoomTypeChange = useCallback((index: number, value: number) => {
+    setBookingForm(prev => {
+      const updatedRoomTypes = prev.roomTypes.map((room, i) => {
+        if (i === index) {
+          return {
+            ...room,
+            quantity: Math.max(0, Math.min(10, value))
+          }
+        }
+        return room
+      })
+      return { ...prev, roomTypes: updatedRoomTypes }
+    })
+  }, [])
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleFormChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
+    
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
-      setBookingForm({ ...bookingForm, [name]: checked })
+      setBookingForm(prev => ({ ...prev, [name]: checked }))
     } else {
-      setBookingForm({ ...bookingForm, [name]: value })
+      setBookingForm(prev => ({ ...prev, [name]: value }))
     }
-  }
+  }, [])
 
   // ============================================================
-  // HANDLE SUBMIT - UPDATED WITH formType
+  // HANDLE SUBMIT
   // ============================================================
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     
     const selectedRooms = bookingForm.roomTypes.filter(r => r.selected === true && r.quantity > 0)
@@ -199,6 +235,7 @@ export default function Cuisines() {
       alert('Thank you! Your booking request has been submitted. We will contact you within 12 hours.')
       setModalOpen(false)
       
+      // Reset form
       setBookingForm({
         fullName: '',
         email: '',
@@ -224,7 +261,7 @@ export default function Cuisines() {
     } finally {
       setIsSubmitting(false)
     }
-  }
+  }, [bookingForm])
 
   // ============================================================
   // RENDER
@@ -246,7 +283,7 @@ export default function Cuisines() {
           <li><Link href="/cuisines" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#B8944F]' : 'text-[#D4BC8D]'}`}>Cuisine</Link></li>
           <li><Link href="/rooms" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Stay</Link></li>
           <li><Link href="/gallery" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Gallery</Link></li>
-          <li><Link href="/#blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
+          <li><Link href="/blog" className={`text-[0.68rem] tracking-[3px] uppercase transition-colors duration-300 ${scrolled ? 'text-[#2C2418] hover:text-[#B8944F]' : 'text-white/90 hover:text-[#D4BC8D]'}`}>Blog</Link></li>
         </ul>
 
         <div className="flex items-center gap-4">
@@ -285,7 +322,7 @@ export default function Cuisines() {
           <Link href="/cuisines" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light opacity-100" onClick={() => setMobileMenuOpen(false)}>Cuisine</Link>
           <Link href="/rooms" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Stay</Link>
           <Link href="/gallery" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
-          <Link href="/#blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+          <Link href="/blog" className="text-white text-lg tracking-[5px] font-['Cormorant_Garamond'] font-light hover:opacity-100 opacity-80 transition-opacity" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
           <button 
             onClick={() => { setMobileMenuOpen(false); setModalOpen(true); }}
             className="mt-4 bg-transparent border border-[#C4A56E] text-[#C4A56E] px-6 py-2 text-[0.65rem] tracking-[3px] uppercase cursor-pointer transition-all duration-300 hover:bg-[#C4A56E] hover:text-white font-sans"
@@ -530,20 +567,34 @@ export default function Cuisines() {
       </section>
 
       {/* ============================================================
-      CTA SECTION
+      CTA SECTION WITH BACKGROUND IMAGE
       ============================================================ */}
-      <div className="mx-4 md:mx-[6%] py-12 md:py-16 lg:py-20 px-6 md:px-8 text-center bg-gradient-to-br from-[#1A1510] to-[#2C2418] text-white my-8 md:my-12 lg:my-16 relative overflow-hidden max-w-[calc(100vw-2rem)] md:max-w-[calc(100vw-12%)]">
-        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.5)] to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(196,165,110,0.5)] to-transparent" />
-        <h2 className="font-['Cormorant_Garamond'] text-3xl md:text-4xl lg:text-5xl font-light mb-4">Reserve Your Dining Experience</h2>
-        <p className="text-white/60 mb-6 font-light text-sm md:text-base">Let us know your preferences and we'll create an unforgettable culinary journey for you</p>
-        <button 
-          onClick={() => setModalOpen(true)}
-          className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[5px] uppercase cursor-pointer transition-all duration-500 font-sans font-medium relative overflow-hidden z-0 hover:bg-white/90 hover:scale-105 shadow-lg inline-flex items-center gap-3 hover:gap-4"
-          aria-label="Inquire about dining"
-        >
-          Inquire About Dining <i className="fas fa-arrow-right transition-all duration-300"></i>
-        </button>
+      <div className="mx-4 md:mx-[5%] py-8 md:py-12 lg:py-16 px-4 md:px-8 text-center relative overflow-hidden my-6 md:my-8 lg:my-12">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
+          style={{ 
+            backgroundImage: "url('https://res.cloudinary.com/dp7piqlbe/image/upload/v1786809435/bushdinner.webp')"
+          }}
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.3)] to-transparent" />
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.3)] to-transparent" />
+        
+        <div className="relative z-10">
+          <h2 className="font-['Cormorant_Garamond'] text-[clamp(1.8rem,5vw,3rem)] font-light text-white mb-3 drop-shadow-lg">
+            Reserve Your Culinary Journey
+          </h2>
+          <p className="text-white/80 mb-4 text-sm md:text-base font-light tracking-wide drop-shadow-md">
+            Let us craft an unforgettable dining experience tailored to your preferences
+          </p>
+          <button 
+            onClick={() => setModalOpen(true)}
+            className="bg-white text-[#1A1510] px-6 py-3 md:px-8 md:py-4 text-[0.65rem] tracking-[5px] uppercase cursor-pointer transition-all duration-300 hover:bg-white/90 hover:scale-105 font-sans font-medium shadow-lg inline-flex items-center gap-3 hover:gap-4"
+            aria-label="Inquire about dining"
+          >
+            Inquire About Dining <i className="fas fa-arrow-right transition-all duration-300"></i>
+          </button>
+        </div>
       </div>
 
       {/* ============================================================
@@ -570,7 +621,7 @@ export default function Cuisines() {
       )}
 
       {/* ============================================================
-      BOOKING MODAL
+      BOOKING MODAL - IMPROVED VERSION
       ============================================================ */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/95 z-[4500] flex items-center justify-center p-4 overflow-y-auto" role="dialog" aria-label="Booking form">
@@ -683,33 +734,46 @@ export default function Cuisines() {
                 </div>
               </div>
 
+              {/* ============================================================
+              ROOM SELECTION - IMPROVED VERSION
+              ============================================================ */}
               <div className="mb-4">
                 <label className="text-[0.6rem] tracking-[3px] uppercase text-[#8B7A64] block mb-2">Room Types *</label>
                 <p className="text-xs text-[#8B7A64] mb-3 font-light">Select room types and specify quantity needed</p>
                 <div className="space-y-3">
                   {bookingForm.roomTypes.map((room, index) => (
-                    <div key={index} className="bg-[#FFFDF9] border border-[#E0D5C8] p-3 rounded transition-all duration-200 hover:border-[#C4A56E]">
-                      <div className="flex items-center gap-3">
+                    <div 
+                      key={index} 
+                      className={`bg-[#FFFDF9] border p-3 rounded transition-all duration-200 ${
+                        room.selected 
+                          ? 'border-[#C4A56E] shadow-sm bg-[#FBF8F4]' 
+                          : 'border-[#E0D5C8] hover:border-[#C4A56E]'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 flex-wrap">
                         <input
                           type="checkbox"
                           checked={room.selected}
                           onChange={() => handleRoomTypeToggle(index)}
-                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer"
+                          className="w-4 h-4 accent-[#C4A56E] cursor-pointer shrink-0"
                           id={`room-${index}`}
                         />
-                        <label htmlFor={`room-${index}`} className="text-sm text-[#2C2418] flex-1 cursor-pointer">
+                        <label 
+                          htmlFor={`room-${index}`} 
+                          className="text-sm text-[#2C2418] flex-1 cursor-pointer min-w-[100px]"
+                        >
                           {room.type}
                         </label>
                         {room.selected && (
-                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease]">
-                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64]">Qty:</label>
+                          <div className="flex items-center gap-2 animate-[fadeIn_0.3s_ease] ml-auto bg-white px-2 py-1 rounded border border-[#E0D5C8]">
+                            <label className="text-[0.55rem] tracking-[2px] uppercase text-[#8B7A64] shrink-0">Qty:</label>
                             <input
                               type="number"
                               min="1"
                               max="10"
                               value={room.quantity || 1}
                               onChange={(e) => handleRoomTypeChange(index, parseInt(e.target.value) || 1)}
-                              className="w-16 p-1.5 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors"
+                              className="w-16 p-1 border border-[#E0D5C8] bg-white text-sm text-center focus:outline-none focus:border-[#C4A56E] transition-colors rounded"
                               onClick={(e) => e.stopPropagation()}
                             />
                           </div>
@@ -718,6 +782,9 @@ export default function Cuisines() {
                     </div>
                   ))}
                 </div>
+                <p className="text-xs text-[#8B7A64] mt-2 font-light">
+                  <span className="text-[#C4A56E]">●</span> Selected rooms will be highlighted with gold border
+                </p>
               </div>
 
               <div className="mb-4">
