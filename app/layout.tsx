@@ -93,6 +93,10 @@ export const metadata: Metadata = {
   // Verification for search consoles
   verification: {
     google: 'your-google-verification-code',
+    // ✅ Added Bing verification
+    other: {
+      'msvalidate.01': 'C52C524F3D4A48E624D02D606374C31B',
+    },
   },
   
   // Additional SEO
@@ -208,10 +212,11 @@ export default function RootLayout({
         <meta name="revisit-after" content="7 days" />
         
         {/* ============================================================
-        GOOGLE SITE VERIFICATION
+        SEARCH CONSOLE VERIFICATIONS
         ============================================================ */}
         <meta name="google-site-verification" content="your-google-verification-code" />
-        <meta name="msvalidate.01" content="your-bing-verification-code" />
+        {/* ✅ Bing Verification Meta Tag */}
+        <meta name="msvalidate.01" content="C52C524F3D4A48E624D02D606374C31B" />
         
         {/* ============================================================
         GOOGLE ANALYTICS - GA4
